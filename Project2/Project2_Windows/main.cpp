@@ -12,7 +12,7 @@ int main()
     // Gi inputverdi for n og p(max)
     int n;
     double pmax;
-    cout << "Enter value for p(max): ";
+    cout << "Enter maximum value for p: ";
     cin >> pmax;
     cout << "Enter value for n: ";
     cin >> n;
@@ -30,15 +30,14 @@ int main()
 //        A.diag(-1).fill(-1);
 //        A=A*h_neg2;
 
-    mat R = zeros<mat>(n,n);
-    vec a1 = A.diag(1);
+//    mat R = zeros<mat>(n,n);
+//    vec a1 = A.diag(1);
 
 
 //    cout << "A= "<<endl<<A<<endl;
 //    cout << "A.diag(1)= "<<endl<<a1<<endl;
 //    cout << "max A.diag(1)= "<< max(abs(a1))<<endl;
 //    cout << "return fra Jacobi_rotate(p,q) er: " << Jacobi_rotate(A,R)<< endl;
-    cout<< "offdiagtest: "<<offdiag(A,n)<<endl;
 
 
 
@@ -46,7 +45,8 @@ int main()
 //    int iterations = 0;
 //    int maxiter = 1000000;
 //    double maxnondiag = 1.0;
-
+    int p,q;
+    cout<< "offdiagtest: "<<offdiag(A,p,q,n)<<endl;
 
 
 
