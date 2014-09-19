@@ -5,7 +5,7 @@
 
 using namespace arma; // MÅ ha for å kunne bruke mat, vec i funksjoner, fjerner nødvendighet for denne i cpp-fila
 
-double offdiag(mat A,int n);
+double offdiag(mat A,int p,int q,int n);
 
 
 

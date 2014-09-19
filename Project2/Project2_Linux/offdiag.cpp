@@ -6,39 +6,44 @@
 using namespace std;
 using namespace arma;
 
-double offdiag(mat A, int n)
+double offdiag(mat A, int p, int q, int n)
 {
-
-
-//    vec diagonaltall = linspace(1,n,n);
-//    cout<< "diagonaltall= "<<endl<<diagonaltall<<endl;
-//    int row, col;
     // Time measurement
     clock_t start, finish;
     start = clock();
 
-    mat X =abs(A);
-    X.diag(0).fill(0);
-    uword row, col;
-//    uword col;
-    double max=X.max(row,col);
-    finish = clock();
-    double time_normal = ((finish-start)/(double) CLOCKS_PER_SEC);
-    cout << "Computational time using algorithm: " << time_normal << endl;
-/* comp time in secs for values of n:
- n=10^4: 1.34
- n=5*10^3: 0.18
- n=7000: 0.34
- n=15000: 3.11
-  */
-//    cout << "X= "<<endl<<X<<endl;
-    cout<<"max value = "<< max << " , at row "<<row<<" and column "<<col<<endl;
+//    double max;
 
 
-    //    for (int i=0, i<n, i++)
-//    {
+mat X =abs(A);
+X.diag(0).fill(0);
+uword row, col;
+double max=X.max(row,col);
 
-//    }
+finish = clock();
+double time_normal = ((finish-start)/(double) CLOCKS_PER_SEC);
+
+cout << "Computational time using .max: " << time_normal << endl;
+cout<<"max value = "<< max << " , at row "<<row<<" and column "<<col<<endl;
+max = 0;
+start = clock();
+
+for (int i=0; i < n; i++)
+{
+    for (int j= i+1; j<n; j++)
+    {
+        double aij = fabs(A(i,j));
+        if (aij > max)
+        {
+            max = aij; p = i; q = j;
+        }
+    }
+}
+
+finish = clock();
+time_normal = ((finish-start)/(double) CLOCKS_PER_SEC);
+cout << "Computational time using algorithm: " << time_normal << endl;
+cout<<"max value = "<< max << " , at row "<<p<<" and column "<<q<<endl;
 
     return max;
 }
