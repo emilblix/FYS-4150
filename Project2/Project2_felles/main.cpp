@@ -18,7 +18,7 @@ int main()
     //    cin >> pmax;
     cout << "Enter value for n: ";
     cin >> n;
-//    n=200;
+    //    n=200;
     pmax=100;
 
     double h=pmax/n;
@@ -36,20 +36,23 @@ int main()
 
     //        mat R = zeros<mat>(n,n);
 
-//=======================================================================
+    //=======================================================================
     // Eigenvalues for A using Armadillos solver (A must be symmetric)
 
     // Time measurement
     clock_t start, finish;
     start = clock();
 
-    vec eig_val_arma = eig_sym(A);
+    vec eig_val_arma = zeros<vec>(n);  //eig_sym(A);
+    eig_val_arma(0)=3.0;
+    eig_val_arma(1)=7.0;
+    eig_val_arma(2)=11.0;
 
     // End timing for Armadillo calculation
     finish = clock();
     double time_arma = ((finish-start)/(double) CLOCKS_PER_SEC);
 
-//=======================================================================
+    //=======================================================================
     // Eigenvalues for A using Jacobi rotations
 
     // Time measurement
@@ -72,21 +75,20 @@ int main()
     // Eigenvalues must be sorted from smallest to largest
     vec jacobi_eig_val = sort(A.diag(0));
 
+
+
     // End timing for Jacobi method
     finish = clock();
     double time_jacobi = ((finish-start)/(double) CLOCKS_PER_SEC);
 
     cout << "For p(max) = " << pmax << " and n = " << n << ":" <<endl<<endl;
-    cout << "                    Jacobi:    Arma:       Difference: " << endl;
+    cout << "                    Jacobi:    Exact:   Difference: " << endl;
     cout << "1st eigenvalue:     " <<jacobi_eig_val(0)<<"    "<< eig_val_arma(0);
     cout << "    " << jacobi_eig_val(0)-eig_val_arma(0) <<  endl;
     cout << "2nd eigenvalue:     " <<jacobi_eig_val(1)<<"    "<< eig_val_arma(1);
     cout << "    " << jacobi_eig_val(1)-eig_val_arma(1) << endl;
     cout << "3rd eigenvalue:     " <<jacobi_eig_val(2)<<"    "<< eig_val_arma(2);
     cout << "    " << jacobi_eig_val(2)-eig_val_arma(2) << endl;
-    cout << "4th eigenvalue:     " <<jacobi_eig_val(3)<<"    "<< eig_val_arma(3) << endl;
-    cout << "5th eigenvalue:     " <<jacobi_eig_val(4)<<"    "<< eig_val_arma(4) << endl;
-    cout << "6th eigenvalue:     " <<jacobi_eig_val(5)<<"    "<< eig_val_arma(5) << endl;
     cout << endl << "Number of iterations: " << iterations << endl;
     cout << "Time used by Armadillo's solver:     " << time_arma << endl;
     cout << "Time used by Jacobi rotation solver: " << time_jacobi << endl;
