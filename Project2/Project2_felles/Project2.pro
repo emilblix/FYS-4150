@@ -4,6 +4,8 @@ CONFIG -= qt
 
 win32 {
     INCLUDEPATH = C:\Dropbox\Emil\FYS4150\armadillo\include
+    PRE_TARGETDEPS += "C:\Dropbox\Emil\FYS4150\armadillo\examples\lib_win64\lapack_win64_MT.lib"
+    PRE_TARGETDEPS += "C:\Dropbox\Emil\FYS4150\armadillo\examples\lib_win64\blas_win64_MT.lib"
 }
 
 unix {

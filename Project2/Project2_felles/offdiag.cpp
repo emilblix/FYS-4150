@@ -7,10 +7,6 @@ using namespace std;
 
 double offdiag(const mat &A, int &k, int &l, int n)
 {
-//    // Time measurement
-//    clock_t start, finish;
-//    start = clock();
-
     double max = 0;
 
     for (int i=0; i < n; i++)
@@ -23,11 +19,5 @@ double offdiag(const mat &A, int &k, int &l, int n)
             }
         }
     }
-
-//    finish = clock();
-//    double time_normal = ((finish-start)/(double) CLOCKS_PER_SEC);
-//    cout << "Computational time using algorithm: " << time_normal << endl;
-//    cout<<"max value = "<< max << " , at row "<<k<<" and column "<<l<<endl;
-
     return max;
 }
