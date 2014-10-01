@@ -29,8 +29,6 @@ int main()
 //    cout << "Enter 1 for single electron, 2 for two electrons without repulsion and 3 for two electrons with repulsion: ";
 //    cin >> method;
 
-//    n=200;
-//    pmax=100;
     omega=0.01;
     method=1;
 
@@ -53,6 +51,9 @@ int main()
     A.diag(1).fill(-inverse_hh);  // Setting upper and lower tridiagonal as -1
     A.diag(-1).fill(-inverse_hh);
 
+    // Setting up the eigenvector matrix
+    mat R= zeros<mat>(n_short,n_short);
+    R.diag(0).fill(1);
 
     //=======================================================================
     // Eigenvalues for A using Armadillos solver (A must be symmetric)
@@ -65,8 +66,6 @@ int main()
 //    vec eig_val_arma = vec(n_short);
 //    eig_sym(eig_val_arma,eig_mat_arma,A);
 
-    // http://stackoverflow.com/questions/24549196/how-to-make-armadillo-work-on-windows
-
         vec eig_val_arma =zeros<vec>(n_short);
         eig_val_arma(0)=3.0;
         eig_val_arma(1)=7.0;
@@ -76,10 +75,10 @@ int main()
     finish = clock();
     double time_arma = ((finish-start)/(double) CLOCKS_PER_SEC);
 
-//    //Saving first eigenvector to file
+//    // Saving first eigenvector to file
 //    mat eigenvec_1 = zeros<mat>(n+1,2);
 
-//    for(int i=1;i<=n;i++)
+//    for(int i=1;i<n;i++)
 //    {
 //        eigenvec_1(i,0)=rho(i-1);
 //        eigenvec_1(i,1)=eig_mat_arma(i-1,0);
@@ -97,7 +96,7 @@ int main()
     // Time measurement
     start = clock();
 
-    double tolerance = 10e-5;
+    double tolerance = 10e-6;
     int iterations = 0;
     int maxiter = 1000000;
     double maxnondiag = 1.0;
@@ -106,7 +105,7 @@ int main()
     while(maxnondiag > tolerance && iterations <= maxiter)
     {
         maxnondiag = offdiag(A, p, q, n_short);
-        Jacobi_rotate(A, p, q, n_short);
+        Jacobi_rotate(A, R, p, q, n_short);
         iterations++;
     }
 
@@ -116,6 +115,22 @@ int main()
     // End timing for Jacobi method
     finish = clock();
     double time_jacobi = ((finish-start)/(double) CLOCKS_PER_SEC);
+
+    //=======================================================================
+    // Save first eigenvector to file
+
+        mat eigenvec_1 = zeros<mat>(n+1,2);
+
+        for(int i=1;i<n;i++)
+        {
+            eigenvec_1(i,0)=rho(i-1);
+            eigenvec_1(i,1)=R(i-1,0);
+        }
+
+        char *filename = new char[1000];
+        sprintf(filename, "Eigenvec_n%04d_o%.3f_p%.1f.dat", n, omega, pmax);
+        cout<<filename<<endl;
+        eigenvec_1.save(filename, raw_ascii);
 
     //=======================================================================
     // Printing values
