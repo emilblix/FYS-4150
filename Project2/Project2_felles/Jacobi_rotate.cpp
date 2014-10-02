@@ -4,7 +4,7 @@
 
 using namespace std;
 
-void Jacobi_rotate(mat &A, mat &R, int k, int l, int n)
+void Jacobi_rotate(mat &A, int k, int l, int n)
 {
     //Find values of cos and sin
     double s,c,t;
@@ -20,7 +20,7 @@ void Jacobi_rotate(mat &A, mat &R, int k, int l, int n)
     s = c*t;
 
     // Save matrix elements for Jacobi rotation
-    double a_ik, a_il, r_ik, r_il;
+    double a_ik, a_il; //r_ik, r_il;
     double a_kk = A(k,k);
     double a_ll = A(l,l);
 
@@ -42,11 +42,11 @@ void Jacobi_rotate(mat &A, mat &R, int k, int l, int n)
             A(i,l) = c*a_il + s*a_ik;
             A(l,i) = A(i,l);
         }
-        // Finally, we compute the new eigenvectors
-        r_ik = R(i,k);
-        r_il = R(i,l);
-        R(i,k) = c*r_ik - s*r_il;
-        R(i,l) = c*r_il + s*r_ik;
+//        // Finally, we compute the new eigenvectors
+//        r_ik = R(i,k);
+//        r_il = R(i,l);
+//        R(i,k) = c*r_ik - s*r_il;
+//        R(i,l) = c*r_il + s*r_ik;
     }
     return;
 }
