@@ -13,29 +13,31 @@ using namespace arma;
 
 int main()
 {
-
+    // Loop for running the program several times without having to restart it
     char looptest;
     do{
 
         // Give input values for n, p(max) and omega
         int n, method;
         double pmax, omega;
+        cout << "Enter 1 for single electron, 2 for two electrons without repulsion and 3 for two electrons with repulsion: ";
+        cin >> method;
         cout << "Rho(max) = ";
         cin >> pmax;
         cout << "n_step   = ";
         cin >> n;
-        cout << "Omega    = ";
-        cin >> omega;
-//        cout << "Enter 1 for single electron, 2 for two electrons without repulsion and 3 for two electrons with repulsion: ";
-//        cin >> method;
-
-        method=2;
+        if(method==2 || method==3)      // Omega is not needed for single electron
+        {
+            cout << "Omega    = ";
+            cin >> omega;
+        }
 
         double h=pmax/n;
         double inverse_hh=1/(h*h);
-        int n_short=n-1;            // Since the matrix is of dimensions n-1 x n-1
+        int n_short=n-1;            // Must use n_short as the matrix is of dimensions n-1 x n-1
 
-        // Start matrix A with dimensions (n-1 x n-1)
+        // Initial matrix A with dimensions (n-1 x n-1)
+
         vec rho = linspace(1,n_short,n_short)*h;    // rho = (pmin[=0] + i*h), i=0,1,2...n-1
         vec V = vec(n_short);
         if(method==1){
@@ -50,15 +52,15 @@ int main()
 
         mat A=zeros<mat>(n_short,n_short);
         A.diag(0) = 2*inverse_hh + V; // Diagonal = 2/h² + p(i)²
-        A.diag(1).fill(-inverse_hh);  // Setting upper and lower tridiagonal as -1
+        A.diag(1).fill(-inverse_hh);  // Setting upper and lower tridiagonal as -1/h²
         A.diag(-1).fill(-inverse_hh);
 
         // Setting up the eigenvector matrix
         mat R= zeros<mat>(n_short,n_short);
         R.diag(0).fill(1);
 
-        //=======================================================================
-        // Eigenvalues for A using Armadillos solver (A must be symmetric)
+        //========================================================================
+        // Eigenvalues for A using Armadillos solver (symmetric A required)
 
         // Time measurement
         clock_t start, finish;
@@ -73,7 +75,7 @@ int main()
         finish = clock();
         double time_arma = ((finish-start)/(double) CLOCKS_PER_SEC);
 
-        // Saving eigenvectors to file
+        // Saving first three eigenvectors to file named with value of omega, pmax and n
         mat eigenvec = zeros<mat>(n+1,4);
         eigenvec(n,0)=pmax;
         for(int i=1;i<n;i++)
@@ -84,28 +86,28 @@ int main()
             eigenvec(i,3)=eig_mat_arma(i-1,2);
         }
         char *filename = new char[1000];
-        sprintf(filename, "Eigenvec_n%03d_w%.3f_p%.1f.dat", n, omega, pmax);
+        sprintf(filename, "Eigenvec_w%.2f_p%.1f_n%03d.dat", omega, pmax, n);
         eigenvec.save(filename, raw_ascii);
 
 
-        //=======================================================================
+        //========================================================================
         // Eigenvalues for A using Jacobi rotations
 
         // Time measurement
         start = clock();
 
-        //        double tolerance = 10e-6;
         int iterations = 0;
-        //        int maxiter = 1000000;
-        //        double maxnondiag = 1.0;
-        //        int p, q;
+        double tolerance = 10e-6;
+        int maxiter = 1000000;
+        double maxnondiag = 1.0;
+        int p, q;
 
-        //        while(maxnondiag > tolerance && iterations <= maxiter)
-        //        {
-        //            maxnondiag = offdiag(A, p, q, n_short);
-        //            Jacobi_rotate(A, p, q, n_short);
-        //            iterations++;
-        //        }
+        while(maxnondiag > tolerance && iterations <= maxiter)
+        {
+            maxnondiag = offdiag(A, p, q, n_short);
+            Jacobi_rotate(A, p, q, n_short);
+            iterations++;
+        }
 
         // Eigenvalues must be sorted from smallest to largest
         vec jacobi_eig_val = sort(A.diag(0));
@@ -114,8 +116,8 @@ int main()
         finish = clock();
         double time_jacobi = ((finish-start)/(double) CLOCKS_PER_SEC);
 
-        //=======================================================================
-        // Printing values
+        //========================================================================
+        // Printing values in a table-like formation
 
         cout <<endl;
         cout << "                    Jacobi:    Armadillo:   Difference (absolute): " << endl;
@@ -129,9 +131,8 @@ int main()
         cout << "Time used by Armadillo's solver:     " << time_arma << endl;
         cout << "Time used by Jacobi rotation solver: " << time_jacobi << endl;
 
-
-        //=======================================================================
-        // Loop for running the program several times without having to restart it
+        //========================================================================
+        // Prompt to restart or end program
 
         cout <<endl<< "New calc? (y/n):";
         cin >> looptest;

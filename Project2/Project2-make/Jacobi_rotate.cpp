@@ -6,7 +6,7 @@ using namespace std;
 
 void Jacobi_rotate(mat &A, int k, int l, int n)
 {
-    //Find values of cos and sin
+    // Finds values of cos and sin
     double s,c,t;
     double tau = (A(l,l) - A(k,k))/(2*A(k,l));
     if (tau >= 0)
@@ -19,16 +19,17 @@ void Jacobi_rotate(mat &A, int k, int l, int n)
     c = 1/sqrt(1 + t * t);
     s = c*t;
 
-    // Save matrix elements for Jacobi rotation
+    // Saves matrix elements for Jacobi rotation
     double a_ik, a_il; //r_ik, r_il;
     double a_kk = A(k,k);
     double a_ll = A(l,l);
 
-    // Changing the matrix elements with indices k and l
+    // Changes the matrix elements with indices k and l
     A(k,k) = c*c*a_kk - 2.0*c*s*A(k,l) + s*s*a_ll;
     A(l,l) = s*s*a_kk + 2.0*c*s*A(k,l) + c*c*a_ll;
 
-    A(k,l) = 0.0; A(l,k) = 0.0; // Hard-coding the zeros
+    // Hard-coding the zeros to avoid roundoff errors
+    A(k,l) = 0.0; A(l,k) = 0.0;
 
     // Change remaining elements
     for ( int i = 0; i < n; i++ )
@@ -42,11 +43,6 @@ void Jacobi_rotate(mat &A, int k, int l, int n)
             A(i,l) = c*a_il + s*a_ik;
             A(l,i) = A(i,l);
         }
-//        // Finally, we compute the new eigenvectors
-//        r_ik = R(i,k);
-//        r_il = R(i,l);
-//        R(i,k) = c*r_ik - s*r_il;
-//        R(i,l) = c*r_il + s*r_ik;
     }
     return;
 }
