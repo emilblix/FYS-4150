@@ -37,7 +37,6 @@ int main()
         int n_short=n-1;            // Must use n_short as the matrix is of dimensions n-1 x n-1
 
         // Initial matrix A with dimensions (n-1 x n-1)
-
         vec rho = linspace(1,n_short,n_short)*h;    // rho = (pmin[=0] + i*h), i=0,1,2...n-1
         vec V = vec(n_short);
         if(method==1){
@@ -86,7 +85,7 @@ int main()
             eigenvec(i,3)=eig_mat_arma(i-1,2);
         }
         char *filename = new char[1000];
-        sprintf(filename, "Eigenvec_w%.2f_p%.1f_n%03d.dat", omega, pmax, n);
+        sprintf(filename, "Eigvec_method%d_w%.2f_p%.1f_n%03d.dat", method, omega, pmax, n);
         eigenvec.save(filename, raw_ascii);
 
 
