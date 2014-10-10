@@ -1,39 +1,53 @@
 #include <iostream>
+#include <vec3.h>
+#include <cmath>
+#include <celestialbody.h>
+#include <solarsystem.h>
+//#include <runge_kutta_4.h>
 
-using namespace std;
-
-class Planet
-{
-protected:
-    double Mass;        // Mass of planet in kg
-    double Avg_dist;    // Average distance from the Sun in AU
-public:
-    double x;           // X-coordinate of planet in AU
-    double y;           // Y-coordinate of planet in AU
-    void setMass(double m)
-    {
-        Mass = m;
-    }
-    void setDist(double d)
-    {
-        Avg_dist = d;
-    }
-};
+using std::cout;
+using std::endl;
+using std::sqrt;
 
 int main()
 {
-    Planet Earth;
+    // Setting initial solar system and celestial bodies
+    SolarSystem solSyst;
+    CelestialBody sun(0,0,0,0,1);
+    CelestialBody earth(1,0,0,0,3e-6);
 
-    Earth.setMass(6e+24);
-    Earth.setDist(1);
+    solSyst.addCelestialBody(sun);
+    solSyst.addCelestialBody(earth);
+
 
     int number_of_years = 2;        // Endpoint of time calculations
-    int n_steps = 100;              // Number of calculation points
-    double h = (double) number_of_years / (double) n_steps;
+    int n_steps = 10;              // Number of calculation points
+    double timestep = (double) number_of_years / (double) n_steps;
+    int n_bodies = solSyst.numberOfBodies();
 
-    cout<< h<<endl<<h*n_steps<<endl<<Earth.Mass<<endl;
+    for(int step=0;step<n_steps;step++)
+    {
+        cout << "step nr "<< step<<endl;
+        solSyst.calculateForcesAndEnergy();
 
+        // beregn Velocity og position (for bodies[i=1] til i<numberOfBodies
+//        ax = F/m;
+//        vx = vx + ax*dt;
+//        x = x + v*dt;
+
+        cout<<3<< earth.force.x()<<endl;
+        solSyst.resetAllForces();
+        cout<<4<< earth.force.x()<<endl;
+        solSyst.dumpToFile(timestep, step);
+    }
+
+
+    cout <<  solSyst.numberOfBodies() << endl;
+    cout <<  solSyst.bodies.at(1)->mass << endl;
+//    solSyst.bodies.at(0)->mass=10;
+    cout << sun.mass<<endl;
 
     return 0;
 }
+
 

@@ -1,10 +1,12 @@
-#ifndef RUNGE_KUTTA_4_H
-#define RUNGE_KUTTA_4_H
-#include <armadillo>
+#ifndef RK4_H
+#define RK4_H
+#include <solarsystem.h>
 
-using namespace arma; // MÅ ha for å kunne bruke mat, vec i funksjoner, fjerner nødvendighet for denne i cpp-fila
+class RK4
+{
+public:
+    RK4();
+    void integrate(SolarSystem &system, double dt);
+};
 
-void runge_kutta_4();
-//første ord (int, double, vec, mat) MÅ være samme type som ønsket output (void gir ingen output/return)
-
-#endif // RUNGE_KUTTA_4_H
+#endif // RK4_H
