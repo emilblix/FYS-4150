@@ -10,6 +10,7 @@ public:
     double Avg_dist;                    // Average distance from the Sun in AU
     vec3 position;                      // Coordinates of planet in AU
     vec3 velocity;                      // Velocity of planet in AU/yr
+    vec3 acceleration;                  // Acceleration of body in AU/yr²
     vec3 force;                         // Force on planet in dimensionless variable
     CelestialBody(vec3 pos, vec3 vel, double mass_);
     CelestialBody(double x, double y, double vx, double vy, double mass_);
