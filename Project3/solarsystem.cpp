@@ -62,10 +62,11 @@ void SolarSystem::resetAllForces()      //  Sets the force vector of all celesti
 void SolarSystem::dumpToFile(double timestep, int step) // Updates the file "pos.dat" with x and y positions of all bodies
 {
     outFile << timestep*step << " ";
-    for (int i = 0 ; i < numberOfBodies(); i++)
+    for (int i = 1 ; i < numberOfBodies(); i++) // Startpoint 0 to include Sun
     {
         CelestialBody *body = bodies[i];
-        outFile << body->position.x() << " " << body->position.y() << " ";
+        outFile << body->position.x() << " " << body->position.y() << " " << body->velocity.x() << " " << body->velocity.y()
+        << " "<< body->acceleration.x() << " " << body->acceleration.y() << " ";
     }
     outFile << "\n";
 }

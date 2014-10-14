@@ -1,0 +1,15 @@
+*.o
+*.user
+Project2/Project2_Windows-Debug/debug/blas_win64_MT.dll
+Project2/Project2_Windows-Debug/debug/lapack_win64_MT.dll
+Project2/Project2_Windows-Debug/debug/Project2.exe
+Project2/Project2_Windows-Debug/Makefile
+Project2/Project2_Windows-Debug/Makefile.Debug
+Project2/Project2_Windows-Debug/Makefile.Release
+build-Project3-Hjemme/debug/Project3.exe
+build-Project3-Hjemme/Makefile
+build-Project3-Hjemme/Makefile.Release
+build-Project3-Hjemme/PlottingProject3.asv
+build-Project3-Hjemme/PlottingProject3.m
+build-Project3-Hjemme/Makefile.Debug
+build-Project3-Hjemme/pos.dat
