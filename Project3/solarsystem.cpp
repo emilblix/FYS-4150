@@ -32,10 +32,10 @@ void SolarSystem::calculateForcesAndEnergy() // Calculates forces between bodies
 
             double forcefactor = body1->mass*body2->mass/(dr*dr*dr);
             vec3 forceVector= deltaRVector*forcefactor;
-//            std::cout<<1<<forceVector.x()<<std::endl;
+
             body1->force = body1->force-forceVector;     // Force on body1 points opposite direction as deltaRVector
             body2->force = body2->force+forceVector;     // Force on body2 points same direction as deltaRvector
-//            std::cout<<2<<body2->force.x()<<std::endl;
+
             // Calculate the potential energy here
         }
 
@@ -65,8 +65,10 @@ void SolarSystem::dumpToFile(double timestep, int step) // Updates the file "pos
     for (int i = 1 ; i < numberOfBodies(); i++) // Startpoint 0 to include Sun
     {
         CelestialBody *body = bodies[i];
-        outFile << body->position.x() << " " << body->position.y() << " " << body->velocity.x() << " " << body->velocity.y()
-        << " "<< body->acceleration.x() << " " << body->acceleration.y() << " ";
+        outFile << body->position.x() << " " << body->position.y() << " ";
+
+//        outFile << body->position.x() << " " << body->position.y() << " " << body->velocity.x() << " " << body->velocity.y()
+//        << " "<< body->acceleration.x() << " " << body->acceleration.y() << " ";
     }
     outFile << "\n";
 }
