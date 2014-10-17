@@ -22,7 +22,7 @@ int main()
     solSyst.addCelestialBody(earth);
 
     float number_of_years = 2;        // Endpoint of time calculations
-    int n_steps = 10000;              // Number of calculation points
+    int n_steps = 10;              // Number of calculation points
     double timestep = (double) number_of_years / (double) n_steps;
     int n_bodies = solSyst.numberOfBodies();
 
@@ -31,40 +31,47 @@ int main()
     for(int step=0;step<=n_steps;step++)
     {
 //        cout << "step nr "<< step<<endl;
-        solSyst.dumpToFile(timestep, step);
+//        solSyst.dumpToFile(timestep, step);
         solSyst.calculateForcesAndEnergy();
+//        RK4::integrateSolarSystem(solSyst,timestep);
 
-        RK4::integrateSolarSystem(solSyst, timestep);
+            // previousValue = avgValue
+
 
         // beregn Velocity og position (for bodies[i=1] til i<numberOfBodies
         for (int i=1;i<n_bodies;i++) // Inactive
         {
-//            CelestialBody *body1 = solSyst.bodies[i];
-//            body1->acceleration = body1->force/body1->mass;
-//            body1->acceleration = body1->acceleration*39.385824;
-//            vec3 posnor = body1->position; posnor.normalize();
-//            vec3 accnor = body1->acceleration; accnor.normalize(); accnor= accnor*(-1);
-//            vec3 nordiff=posnor-accnor;
+            CelestialBody *body1 = solSyst.bodies[i];
+            body1->acceleration = body1->force/body1->mass;
+            body1->acceleration = body1->acceleration*39.38582459259259259; // Sjekk lengde for double-presisjon, 259 er repeterende
+            vec3 posnor = body1->position; posnor.normalize();
+            vec3 accnor = body1->acceleration; accnor.normalize(); accnor= accnor*(-1);
+            vec3 nordiff=posnor-accnor;
 //            cout<<"body1->position         = "<<body1->position<<endl;
 //            cout<<"body1->velocity         = "<<body1->velocity<<endl;
 //            cout<<"body1->acceleration     = "<<body1->acceleration<<endl;
 //            cout<<"body1->position nor     = "<<posnor<<endl;
 //            cout<<"body1->acceleration nor = "<<accnor<<endl;
-//            double difflength = nordiff.length();
-//            if(difflength>1e-5)
-//            {
-//                cout<<"Difference accnor posnor more than 1e-5"<<endl;
-//                break;
-//            }
+            double difflength = nordiff.length();
+            if(difflength>1e-5)
+            {
+                cout<<"Difference accnor posnor more than 1e-5"<<endl;
+                break;
+            }
+            // newValue =
+            // avgValue = (newvalue - previousvalue) / 2;
+            // body1->position = body1->position + avgvalue*timestep;
 
 
-//            vec3 da = body1->acceleration*timestep;
-//            body1->velocity = body1->velocity + da;
-//            vec3 dv = body1->velocity*timestep;
-//            body1->position = body1->position + dv;
+            vec3 da = body1->acceleration*timestep;
+            body1->velocity = body1->velocity + da;
+            vec3 dv = body1->velocity*timestep;
+            body1->position = body1->position + dv;
+
 //        ax = F/m;
 //        vx = vx + ax*dt;
 //        x = x + v*dt;
+
         }
 
 

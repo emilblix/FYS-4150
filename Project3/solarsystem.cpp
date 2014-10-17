@@ -59,6 +59,28 @@ void SolarSystem::resetAllForces()      //  Sets the force vector of all celesti
         bodies[i]->resetForce();
     }
 }
+
+vec3 SolarSystem::forceAtPosition(int bodyNumber, vec3 pos)
+{
+    CelestialBody *body1 = bodies[bodyNumber];
+    vec3 forceOnBody = vec3(0,0,0) ;
+    for(int i=0; i<numberOfBodies(); i++)
+    {
+        if(i != bodyNumber)
+        {
+            CelestialBody *body2 = bodies[i];
+            vec3 deltaRVector = body2->position - pos;          // deltaRVector pointing from forceBody to body2
+            double dr = deltaRVector.length();                  // Distance between bodies
+            double forcefactor = body1->mass*body2->mass/(dr*dr*dr);
+            vec3 forceVector= deltaRVector*forcefactor;
+            forceOnBody = forceOnBody+forceVector;              // Force on forceBody points same direction as deltaRVector
+        }
+
+        // Calculate the potential energy here
+    }
+    return forceOnBody;
+}
+
 void SolarSystem::dumpToFile(double timestep, int step) // Updates the file "pos.dat" with x and y positions of all bodies
 {
     outFile << timestep*step << " ";

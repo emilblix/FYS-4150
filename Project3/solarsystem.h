@@ -26,6 +26,7 @@ public:
     int numberOfBodies();
     double totalEnergy();
     void resetAllForces();
+    vec3 forceAtPosition(int bodyNumber, vec3 pos);
     void dumpToFile(double timestep, int step);
 };
 

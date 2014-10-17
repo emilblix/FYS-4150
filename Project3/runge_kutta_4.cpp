@@ -12,10 +12,21 @@ void RK4::integrateSolarSystem(SolarSystem &system, double dt)
 
     for(int i=1;i<n_bodies;i++)
     {
-        vec3 K1,K2,K3,K4;
+//        char *variableName = new char[1000];          // Lage egen class for RK-vektorer?
+//        sprintf(variableName, "K1_%01d", i);
+//        vec3 variableName;
+//        sprintf(variableName, "K2_%01d", i);
+//        vec3 variableName;
+//        sprintf(variableName, "K3_%01d", i);
+//        vec3 variableName;
+//        sprintf(variableName, "K4_%01d", i);
+//        vec3 variableName;
+        CelestialBody *body = system.bodies[i];
+//        vec3 K1,K2,K3,K4;
 
+        K1_1=system.forceAtPosition(body,body->position);
 //        Lag funksjon force(position) eller acceleration(position) og funksjon
-
+    std::cout<<"K1 = "<<K1_1<<endl;
     }
 
 
