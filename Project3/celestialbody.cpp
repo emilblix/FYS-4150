@@ -3,11 +3,12 @@
 
 
 
-CelestialBody::CelestialBody(double x, double y, double vx, double vy, double mass_)
+CelestialBody::CelestialBody(double x, double y, double vx, double vy, double mass_, char *name_)
 {
     position = vec3(x,y,0);
     velocity = vec3(vx,vy,0);
     mass = mass_;
+    name = name_;
 }
 
 CelestialBody::CelestialBody(vec3 pos, vec3 vel, double mass_)

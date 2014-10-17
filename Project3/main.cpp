@@ -1,88 +1,117 @@
 #include <iostream>
+#include <cstdlib>
 #include <vec3.h>
 #include <cmath>
 #include <celestialbody.h>
 #include <solarsystem.h>
 #include <runge_kutta_4.h>
+#include <collisiontest.h>
 
 using std::cout;
 using std::endl;
 using std::sqrt;
+using std::vector;
 
 int main()
 {
+    // SET METHOD: 0 for Verlet and 1 for Runge-Kutta
+    int method = 1;
+
     // Setting initial solar system and celestial bodies
-    const double pi = 3.141592653589793238463; // Pi with double-presi
+    const double pi = 4*std::atan(1.0); // Pi with double-presi
+    //const double G = 4*pi*pi;
 
     SolarSystem solSyst;
-    CelestialBody sun(0,0,0,0,1);
-    CelestialBody earth(1/sqrt(2),1/sqrt(2),-2/sqrt(2)*pi,2/sqrt(2)*pi,3e-6);
+    CelestialBody sun(0,0,0,0,1,"Sun");
+    CelestialBody earth(1,0,0,2*pi,3e-6,"Earth");
+
+    //CelestialBody jupiter(5.2,0,0,2*pi,9.5e-4,"Jupiter");
 
     solSyst.addCelestialBody(sun);
     solSyst.addCelestialBody(earth);
+    //solSyst.addCelestialBody(jupiter);
 
-    float number_of_years = 2;        // Endpoint of time calculations
-    int n_steps = 10;              // Number of calculation points
-    double timestep = (double) number_of_years / (double) n_steps;
+    RK4 solSystRK;
+
+
+    float number_of_years = 1;        // Endpoint of time calculations
+    double timestep = 1e-4;
+    int n_steps = number_of_years/timestep;              // Number of calculation points
     int n_bodies = solSyst.numberOfBodies();
 
-//    cout<<"timestep = "<<h<<endl;
 
-    for(int step=0;step<=n_steps;step++)
+    if(method==0)   // Verlet method
     {
-//        cout << "step nr "<< step<<endl;
-//        solSyst.dumpToFile(timestep, step);
-        solSyst.calculateForcesAndEnergy();
-//        RK4::integrateSolarSystem(solSyst,timestep);
+        vector<double> lastAcceleration = vector<double>(2*n_bodies);
 
+        for(int step=0;step<=n_steps;step++)
+        {
+            printf("Progress: %4.1f %% \r", 100.0*((double)step)/((double)n_steps));
+
+            solSyst.dumpToFile(timestep, step);
+
+//            lastAcceleration = avgAcc;
             // previousValue = avgValue
 
-
-        // beregn Velocity og position (for bodies[i=1] til i<numberOfBodies
-        for (int i=1;i<n_bodies;i++) // Inactive
-        {
-            CelestialBody *body1 = solSyst.bodies[i];
-            body1->acceleration = body1->force/body1->mass;
-            body1->acceleration = body1->acceleration*39.38582459259259259; // Sjekk lengde for double-presisjon, 259 er repeterende
-            vec3 posnor = body1->position; posnor.normalize();
-            vec3 accnor = body1->acceleration; accnor.normalize(); accnor= accnor*(-1);
-            vec3 nordiff=posnor-accnor;
-//            cout<<"body1->position         = "<<body1->position<<endl;
-//            cout<<"body1->velocity         = "<<body1->velocity<<endl;
-//            cout<<"body1->acceleration     = "<<body1->acceleration<<endl;
-//            cout<<"body1->position nor     = "<<posnor<<endl;
-//            cout<<"body1->acceleration nor = "<<accnor<<endl;
-            double difflength = nordiff.length();
-            if(difflength>1e-5)
+            // Verlet method
+            for (int i=1;i<n_bodies;i++) // Inactive
             {
-                cout<<"Difference accnor posnor more than 1e-5"<<endl;
+//                CelestialBody *body1 = solSyst.bodies[i];
+//                body1->acceleration = body1->force/body1->mass;
+//                body1->acceleration = body1->acceleration*G;
+
+//                newValue =
+//                avgValue = (newvalue - previousvalue) / 2;
+//                body1->position = body1->position + avgvalue*timestep;
+
+
+//                vec3 da = body1->acceleration*timestep;
+//                body1->velocity = body1->velocity + da;
+//                vec3 dv = body1->velocity*timestep;
+//                body1->position = body1->position + dv;
+
+            }
+
+
+            // Collision test
+            int colltest = collisionTest(solSyst);
+            if(colltest==1)
+            {
+                printf(" after %4.1f %% \r", 100.0*((double)step)/((double)n_steps));
                 break;
             }
-            // newValue =
-            // avgValue = (newvalue - previousvalue) / 2;
-            // body1->position = body1->position + avgvalue*timestep;
-
-
-            vec3 da = body1->acceleration*timestep;
-            body1->velocity = body1->velocity + da;
-            vec3 dv = body1->velocity*timestep;
-            body1->position = body1->position + dv;
-
-//        ax = F/m;
-//        vx = vx + ax*dt;
-//        x = x + v*dt;
 
         }
-
-
-        solSyst.resetAllForces();
     }
 
+    else if(method==1) // 4th order Runge-Kutta
+    {
 
-//    cout <<  solSyst.numberOfBodies() << endl;
-//    cout <<  solSyst.bodies.at(1)->mass << endl;
-//    solSyst.bodies.at(0)->mass=10;
-//    cout << sun.mass<<endl;
+        for(int step=0;step<=n_steps;step++)
+        {
+            printf("Progress: %4.1f %% \r", 100.0*((double)step)/((double)n_steps));
+
+            solSyst.dumpToFile(timestep, step);
+
+            solSystRK.integrateSolarSystem(solSyst, timestep);
+
+            // Collision test
+            int colltest = collisionTest(solSyst);
+            if(colltest==1)
+            {
+                printf(" after %4.1f %% \r", 100.0*((double)step)/((double)n_steps));
+                break;
+            }
+
+        }
+    }
+    cout<<endl;
+    //    cout <<  solSyst.numberOfBodies() << endl;
+    //    cout <<  solSyst.bodies.at(1)->mass << endl;
+    //    solSyst.bodies.at(0)->mass=10;
+    //    cout << sun.mass<<endl;
+
+
 
     return 0;
 }
