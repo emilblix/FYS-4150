@@ -22,20 +22,20 @@ int main()
     //const double G = 4*pi*pi;
 
     SolarSystem solSyst;
-    CelestialBody sun(0,0,0,0,1,"Sun");
-    CelestialBody earth(1,0,0,2*pi,3e-6,"Earth");
+    CelestialBody sun(0,0,0,0,1,4.64e-3,"Sun");
+    CelestialBody earth(1,0,0,2*pi,3e-6,4.25e-5,"Earth");
 
-    //CelestialBody jupiter(5.2,0,0,2*pi,9.5e-4,"Jupiter");
+    CelestialBody jupiter(5.2,0,0,2*pi/sqrt(5.2),9.5e-4,4.66e-4,"Jupiter");
 
     solSyst.addCelestialBody(sun);
     solSyst.addCelestialBody(earth);
-    //solSyst.addCelestialBody(jupiter);
+    solSyst.addCelestialBody(jupiter);
 
     RK4 solSystRK;
 
 
-    float number_of_years = 1;        // Endpoint of time calculations
-    double timestep = 1e-4;
+    float number_of_years = 5;        // Endpoint of time calculations
+    double timestep = 1.0/365;
     int n_steps = number_of_years/timestep;              // Number of calculation points
     int n_bodies = solSyst.numberOfBodies();
 
