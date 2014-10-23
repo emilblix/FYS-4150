@@ -8,7 +8,7 @@ RK4::RK4()
 {
 }
 
-void RK4::integrateSolarSystem(SolarSystem &system, double dt)
+void RK4::integrateSolarSystem(SolarSystem &system, double dt, int sunCheck)
 {
     // Creating vectors
     int n_bodies = system.numberOfBodies();
@@ -57,7 +57,7 @@ void RK4::integrateSolarSystem(SolarSystem &system, double dt)
     A = add(A,K1);
 
     // Returning new position and velocity values to CelestialBody objects
-    for(int i=0;i<n_bodies;i++)
+    for(int i=sunCheck;i<n_bodies;i++)  // For stationary Sun, set startpoint i=1
     {
         CelestialBody *body = system.bodies[i];
         body->position.set(A[4*i],   A[4*i+1], 0);

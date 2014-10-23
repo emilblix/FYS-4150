@@ -6,15 +6,15 @@ class CelestialBody
 {
 
 public:
-    char* name;
+    char const* name;
     double mass;                        // Relative mass of body compared to the Sun
     double radius;                      // Radius in AU
     vec3 position;                      // Coordinates of planet in AU
     vec3 velocity;                      // Velocity of planet in AU/yr
     vec3 acceleration;                  // Acceleration of body in AU/yr²
     vec3 force;                         // Force on planet in dimensionless variable
+    CelestialBody(double x, double y, double vx, double vy, double mass_, double radius_, const char *name_);
     CelestialBody(vec3 pos, vec3 vel, double mass_);
-    CelestialBody(double x, double y, double vx, double vy, double mass_, double radius_, char* name_);
     void resetForce();
 };
 

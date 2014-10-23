@@ -22,7 +22,8 @@ public:
     SolarSystem();
     ~SolarSystem() {outFile.close();}
     void addCelestialBody(CelestialBody &newBody);
-    void calculateForcesAndEnergy();
+    void calculateKineticAndPotentialEnergy();
+    void calculateForces();
     int numberOfBodies();
     double totalEnergy();
     void resetAllForces();

@@ -3,7 +3,7 @@
 
 
 
-CelestialBody::CelestialBody(double x, double y, double vx, double vy, double mass_, double radius_,char *name_)
+CelestialBody::CelestialBody(double x, double y, double vx, double vy, double mass_, double radius_,char const *name_)
 {
     position = vec3(x,y,0);
     velocity = vec3(vx,vy,0);
