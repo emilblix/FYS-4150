@@ -1,5 +1,5 @@
-#ifndef SOLARSYSTEM_H
-#define SOLARSYSTEM_H
+#ifndef CLUSTER_H
+#define CLUSTER_H
 
 #include <celestialbody.h>
 #include <vector>
@@ -10,18 +10,18 @@ using std::vector;
 using std::fstream;
 using std::ios;
 
-class SolarSystem
+class Cluster
 {
 public:
-    vector<CelestialBody*> bodies;
+    vector<CelestialBody> bodies;
     double kineticEnergy;
     double potentialEnergy;
     vec3 angularMomentum;
     fstream outFile;
 
-    SolarSystem();
-    ~SolarSystem() {outFile.close();}
-    void addCelestialBody(CelestialBody &newBody);
+    Cluster();
+    ~Cluster() {outFile.close();}
+    void addCelestialBody(CelestialBody newBody);
     void calculateKineticAndPotentialEnergy();
     void calculateForces();
     int numberOfBodies();
@@ -31,4 +31,4 @@ public:
     void dumpToFile(double timestep, int step);
 };
 
-#endif // SOLARSYSTEM_H
+#endif // CLUSTER_H

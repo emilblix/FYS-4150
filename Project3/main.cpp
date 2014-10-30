@@ -133,7 +133,6 @@ int main()
 
             solSystRK.integrateSolarSystem(solSyst, timestep, stationarySun);
 
-//            cout << "Sum kinetic and potential energy: " << solSyst.totalEnergy()<<endl;
 
             // Collision test
             int colltest = collisionTest(solSyst);
