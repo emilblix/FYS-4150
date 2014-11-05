@@ -8,6 +8,8 @@ RK4::RK4()
 {
 }
 
+// Using x-, y- and z-coordinates as doubles
+
 void RK4::integrateCluster(Cluster &system, double dt)
 {
     // Creating vectors
@@ -57,12 +59,12 @@ void RK4::integrateCluster(Cluster &system, double dt)
     K1 = add(K1,mult(K3,2));
     K1 = mult(K1,1/6.0);
 
-//    std::cout << "a before:" <<A[7]<<std::endl;
+    //    std::cout << "a before:" <<A[7]<<std::endl;
 
     A = add(A,K1);
 
     //std::cout<<K1[9]<<std::endl;
-//    std::cout<< "a after:" << A[7]<<std::endl;
+    //    std::cout<< "a after:" << A[7]<<std::endl;
 
 
     // Returning new position and velocity values to CelestialBody objects
@@ -117,27 +119,22 @@ std::vector<double> RK4::dAdt(Cluster &system, std::vector<double> A)
             dAdt[6*j+5] -= dZ*forcefactor/mass_j;
         }
     }
-return dAdt;
+    return dAdt;
 }
 
 // Multiplication function for a std::vector<double> multiplied with a scalar
-std::vector<double> RK4::mult(std::vector<double> a, double k) {
+std::vector<double> RK4::mult(std::vector<double> a, double k)
+{
     for (unsigned int i=0; i < a.size(); i++) {
         a[i] = a[i]*k;
     }
     return a;
 }
 
-// Multiplication function for a std::vector<vec3> multiplied with a scalar
-std::vector<vec3> RK4::multv(std::vector<vec3> a, double k) {
-    for (unsigned int i=0; i < a.size(); i++) {
-        a[i] = a[i]*k;
-    }
-    return a;
-}
 
 // Function for adding two std::vector<double>, with test for equal length
-std::vector<double> RK4::add(std::vector<double> a, std::vector<double> b) {
+std::vector<double> RK4::add(std::vector<double> a, std::vector<double> b)
+{
 
     if (a.size() != b.size()) {
         std::cout << "Error: Vectors a and b must be of equal length." << std::endl;
@@ -150,19 +147,8 @@ std::vector<double> RK4::add(std::vector<double> a, std::vector<double> b) {
     return c;
 }
 
-// Function for adding two std::vector<vec3>, with test for equal length
-std::vector<vec3> RK4::addv(std::vector<vec3> a, std::vector<vec3> b) {
-
-    if (a.size() != b.size()) {
-        std::cout << "Error: Vectors a and b must be of equal length." << std::endl;
-        return a;
-    }
-    std::vector<vec3> c = std::vector<vec3>(a.size());
-    for (unsigned int i=0; i < a.size(); i++) {
-        c[i] = a[i] + b[i];
-    }
-    return c;
-}
+//---------------------------------------------------------------------------------
+// Using vector class vec3
 
 void RK4::integrateClusterVec(Cluster &system, double dt)
 {
@@ -196,7 +182,7 @@ void RK4::integrateClusterVec(Cluster &system, double dt)
         CelestialBody *body = &system.bodies[i];
         body->acceleration=K1[2*i+1];
     }
-//    std::cout<<K1[3]<<std::endl;
+    //    std::cout<<K1[3]<<std::endl;
 
     // Runge-Kutta 4th order integration, continued
     K1 = multv(K1,dt);
@@ -210,11 +196,7 @@ void RK4::integrateClusterVec(Cluster &system, double dt)
     K1 = addv(K1,multv(K3,2));
     K1 = multv(K1,1/6.0);
 
-//    std::cout << "a before:" <<A[1]<<std::endl;
-
     A = addv(A,K1);
-
-//    std::cout<< "a after:" << A[1]<<std::endl;
 
 
     // Returning new position and velocity values to CelestialBody objects
@@ -269,5 +251,29 @@ std::vector<vec3> RK4::dAdtVec(Cluster &system, std::vector<vec3> A)
         // Multiplying with G = 4pi^2 at the end
         dAdt[2*i+1] = dAdt[2*i+1]*G;
     }
-return dAdt;
+    return dAdt;
+}
+
+// Multiplication function for a std::vector<vec3> multiplied with a scalar
+std::vector<vec3> RK4::multv(std::vector<vec3> a, double k)
+{
+    for (unsigned int i=0; i < a.size(); i++) {
+        a[i] = a[i]*k;
+    }
+    return a;
+}
+
+// Function for adding two std::vector<vec3>, with test for equal length
+std::vector<vec3> RK4::addv(std::vector<vec3> a, std::vector<vec3> b)
+{
+
+    if (a.size() != b.size()) {
+        std::cout << "Error: Vectors a and b must be of equal length." << std::endl;
+        return a;
+    }
+    std::vector<vec3> c = std::vector<vec3>(a.size());
+    for (unsigned int i=0; i < a.size(); i++) {
+        c[i] = a[i] + b[i];
+    }
+    return c;
 }

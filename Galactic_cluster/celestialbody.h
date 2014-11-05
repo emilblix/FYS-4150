@@ -14,6 +14,7 @@ public:
     CelestialBody(double mass_, double x, double y, double z, double vx, double vy, double vz);
     CelestialBody(vec3 pos, vec3 vel, double mass_);
     void resetForce();
+    void resetAcceleration();
 };
 
 #endif // CELESTIAL_BODY_H

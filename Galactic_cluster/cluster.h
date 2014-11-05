@@ -24,9 +24,11 @@ public:
     void addCelestialBody(CelestialBody newBody);
     void calculateKineticAndPotentialEnergy();
     void calculateForces();
+    void calculateAcceleration();
     int numberOfBodies();
     double totalEnergy();
     void resetAllForces();
+    void resetAllAcceleration();
     vec3 forceAtPosition(int bodyNumber, vec3 pos);
     void dumpToFile(double timestep, int step);
 };

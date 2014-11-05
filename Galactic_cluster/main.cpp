@@ -3,6 +3,7 @@
 #include <celestialbody.h>
 #include <cluster.h>
 #include <rk_4.h>
+#include <verlet.h>
 #include <cmath>
 #include "time.h"
 
@@ -12,18 +13,20 @@ using namespace std;
 // starting velocity) on each line, separated by spaces. Each line counts as one body.
 std::ifstream infile("S_E_M.txt");
 
-
+// Set integration method. RK4 is 0, Velocity Verlet is 1
+int method = 1;
 
 int main()
 {
-
+    // Initial values and calculations
 
     // Set endpoint of time calculations and timestep (dt)
     float number_of_years = 1;
     double timestep = 1e-3;
+    //    const double pi = 4*std::atan(1.0); // Pi with double-precision
+    //    const double G = 4*pi*pi;
 
     // Setting initial solar system and celestial bodies
-
     Cluster astCluster;
 
     // Add data from file as celestial bodies into the cluster
@@ -37,33 +40,47 @@ int main()
     cout << "Number of bodies = "<< astCluster.numberOfBodies()<<endl;
     for(int i=0;i<astCluster.numberOfBodies();i++)
     {
-        cout << astCluster.bodies.at(i).velocity<<endl;
+        cout << astCluster.bodies.at(i).velocity << endl;
     }
 
-//    const double pi = 4*std::atan(1.0); // Pi with double-precision
-//    const double G = 4*pi*pi;
+    astCluster.calculateForces();
+    astCluster.calculateAcceleration();
+    cout<<endl<<astCluster.bodies.at(1).force<<endl;
 
     int n_steps = number_of_years/timestep;              // Number of calculation points
-//    int n_bodies = astCluster.numberOfBodies();
+    //    int n_bodies = astCluster.numberOfBodies();
 
     // Time measurement
     clock_t start, finish;
     start = clock();
 
-    for(int step=0;step<=n_steps;step++)        // RK4
+    if(method == 0)  // Runge-Kutta 4
     {
-        // Print progress bar
-        printf("Progress: %4.1f %% \r", 100.0*((double)step)/((double)n_steps));
+        for(int step=0;step<=n_steps;step++)
+        {
+            // Print progress bar
+            printf("Progress: %4.1f %% \r", 100.0*((double)step)/((double)n_steps));
 
-        astCluster.calculateKineticAndPotentialEnergy();
-        // Write to file for plotting
-        astCluster.dumpToFile(timestep, step);
+            astCluster.calculateKineticAndPotentialEnergy();
 
+            // Write to file for plotting
+            astCluster.dumpToFile(timestep, step);
 
-        RK4::integrateClusterVec(astCluster,timestep);
-
-//        cout<< astCluster.bodies.at(1).acceleration <<endl;
+            RK4::integrateClusterVec(astCluster,timestep);
+        }
     }
+
+    if(method == 1)  // Velocity Verlet
+    {
+
+        Verlet::velocityVerlet(astCluster,timestep,n_steps);
+
+    }
+
+
+    // Add energy and print for last step
+    astCluster.calculateKineticAndPotentialEnergy();
+    astCluster.dumpToFile(number_of_years,1);
 
     // End timing
     finish = clock();

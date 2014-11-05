@@ -50,19 +50,51 @@ void Cluster::calculateForces() // Calculates forces between bodies
     resetAllForces();
     for(int i=0; i<numberOfBodies(); i++)
     {
-        CelestialBody body1 = bodies[i];
+        CelestialBody *body1 = &bodies[i];
         for(int j=i+1; j<numberOfBodies(); j++)
         {
-            CelestialBody body2 = bodies[j];
-            vec3 deltaRVector = body2.position - body1.position;    // deltaRVector pointing from body1 to body2
+            CelestialBody *body2 = &bodies[j];
+            vec3 deltaRVector = body2->position - body1->position;    // deltaRVector pointing from body1 to body2
             double dr = deltaRVector.length();
 
-            double forcefactor = body1.mass*body2.mass/(dr*dr*dr);
+            double forcefactor = body1->mass*body2->mass/(dr*dr*dr);
             vec3 forceVector= deltaRVector*forcefactor;
 
-            body1.force = body1.force+forceVector;     // Force on body1 points same direction as deltaRVector
-            body2.force = body2.force-forceVector;     // Force on body2 points opposite direction as deltaRvector
+            body1->force = body1->force+forceVector;     // Force on body1 points same direction as deltaRVector
+            body2->force = body2->force-forceVector;     // Force on body2 points opposite direction as deltaRvector
         }
+    }
+}
+
+
+void Cluster::calculateAcceleration() // Calculates forces between bodies
+{
+    const double pi = 4*std::atan(1.0); // Pi with double-precision
+    const double G = 4*pi*pi;
+    // Set forces to zero to avoid addition from previous run
+    resetAllAcceleration();
+    for(int i=0; i<numberOfBodies(); i++)
+    {
+        CelestialBody *body1 = &bodies.at(i);
+        for(int j=i+1; j<numberOfBodies(); j++)
+        {
+            CelestialBody *body2 = &bodies[j];
+            vec3 deltaRVector = body2->position - body1->position;    // deltaRVector pointing from body1 to body2
+            double dr = deltaRVector.length();
+            double dr_cubed = dr*dr*dr;
+
+            double accFactor = body2->mass/dr_cubed;
+            vec3 accVector= deltaRVector*accFactor;
+            body1->acceleration = body1->acceleration+accVector;     // Force on body1 points same direction as deltaRVector
+
+//std::cout<<std::endl<<body1->acceleration<<std::endl<<bodies[i].acceleration<<std::endl;
+
+            accFactor = body1->mass/dr_cubed;
+            accVector= deltaRVector*accFactor;
+            body2->acceleration = body2->acceleration-accVector;     // Force on body2 points opposite direction as deltaRvector
+        }
+        // Finally, multiplying the sum of "acceleration vectors" with 4pi^2 to get the proper acceleration
+        body1->acceleration = body1->acceleration*G;
     }
 }
 
@@ -76,11 +108,20 @@ double Cluster::totalEnergy()       // Returns sum of kinetic and potential ener
     calculateKineticAndPotentialEnergy();
     return kineticEnergy + potentialEnergy;
 }
+
 void Cluster::resetAllForces()      //  Sets the force vector of all celestial bodies to zero
 {
     for(int i=0; i<numberOfBodies(); i++)
     {
         bodies[i].resetForce();
+    }
+}
+
+void Cluster::resetAllAcceleration()      //  Sets the force vector of all celestial bodies to zero
+{
+    for(int i=0; i<numberOfBodies(); i++)
+    {
+        bodies[i].resetAcceleration();
     }
 }
 

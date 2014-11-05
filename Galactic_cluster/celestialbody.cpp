@@ -21,3 +21,8 @@ void CelestialBody::resetForce()
 {
     force.setToZero();
 }
+
+void CelestialBody::resetAcceleration()
+{
+    acceleration.setToZero();
+}
