@@ -257,7 +257,8 @@ std::vector<vec3> RK4::dAdtVec(Cluster &system, std::vector<vec3> A)
 // Multiplication function for a std::vector<vec3> multiplied with a scalar
 std::vector<vec3> RK4::multv(std::vector<vec3> a, double k)
 {
-    for (unsigned int i=0; i < a.size(); i++) {
+    for (unsigned int i=0; i < a.size(); i++)
+    {
         a[i] = a[i]*k;
     }
     return a;
@@ -266,13 +267,14 @@ std::vector<vec3> RK4::multv(std::vector<vec3> a, double k)
 // Function for adding two std::vector<vec3>, with test for equal length
 std::vector<vec3> RK4::addv(std::vector<vec3> a, std::vector<vec3> b)
 {
-
-    if (a.size() != b.size()) {
+    if (a.size() != b.size())
+    {
         std::cout << "Error: Vectors a and b must be of equal length." << std::endl;
         return a;
     }
     std::vector<vec3> c = std::vector<vec3>(a.size());
-    for (unsigned int i=0; i < a.size(); i++) {
+    for (unsigned int i=0; i < a.size(); i++)
+    {
         c[i] = a[i] + b[i];
     }
     return c;
