@@ -87,11 +87,10 @@ void Cluster::calculateAcceleration() // Calculates forces between bodies
             vec3 accVector= deltaRVector*accFactor;
             body1->acceleration = body1->acceleration+accVector;     // Force on body1 points same direction as deltaRVector
 
-//std::cout<<std::endl<<body1->acceleration<<std::endl<<bodies[i].acceleration<<std::endl;
-
             accFactor = body1->mass/dr_cubed;
             accVector= deltaRVector*accFactor;
             body2->acceleration = body2->acceleration-accVector;     // Force on body2 points opposite direction as deltaRvector
+//            std::cout<<"accVector = "<<i<<", "<<j<<": "<<accVector<<std::endl;
         }
         // Finally, multiplying the sum of "acceleration vectors" with 4pi^2 to get the proper acceleration
         body1->acceleration = body1->acceleration*G;

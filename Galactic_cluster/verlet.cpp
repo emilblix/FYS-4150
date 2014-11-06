@@ -40,6 +40,12 @@ void Verlet::velocityVerlet(Cluster &system, double dt, int n_steps)
         position = add(position, mult(velocity,dt)         );     // r(i) = r(i-1) + v(i-1)*dt
         position = add(position, mult(lastAccel,dt*dt/2.0) );     // r(i) =    above line      + 1/2 a*dt^2
 
+         // Returning new position values to CelestialBody objects
+        for(int i=0;i<n_bodies;i++)  // For stationary Sun, set startpoint i=1
+        {
+            CelestialBody *body = &system.bodies[i];
+            body->position = position[i];
+        }
         // Calculate acceleration based on new positions
         system.calculateAcceleration();
         for(int i=0;i<n_bodies;i++)
@@ -50,11 +56,10 @@ void Verlet::velocityVerlet(Cluster &system, double dt, int n_steps)
         // Calculate new velocity
         velocity = add(velocity, mult( add(lastAccel,newAccel), dt/2.0 )); // v(i) = v(i-1) + 1/2 [a(i-1)+a(i)]*dt
 
-        // Returning new position and velocity values to CelestialBody objects
+        // Returning new velocity values to CelestialBody objects
         for(int i=0;i<n_bodies;i++)  // For stationary Sun, set startpoint i=1
         {
             CelestialBody *body = &system.bodies[i];
-            body->position = position[i];
             body->velocity = velocity[i];
         }
 
@@ -113,22 +118,20 @@ void Verlet::integrateVerlet(Cluster &system, double dt, int n_steps)
         newPos = subtract(mult(currentPos,2), lastPos); // r(i+1) = 2r(i) - r(i-1)
         newPos = add(newPos, mult(acceleration,dt*dt)); // r(i+1) =  above line    + a(i)*dt^2
 
+
         // Calculate new velocity
         velocity = mult(subtract(newPos,lastPos), 1/(2*dt)); // v(i) = (r(i+1) - r(i-1))/2dt
 
         //Returning new position and velocity values to CelestialBody objects
-        for(int i=0;i<n_bodies;i++)  // For stationary Sun, set startpoint i=1
+        for(int i=0;i<n_bodies;i++)
         {
             CelestialBody *body = &system.bodies[i];
-            body->position = currentPos[i];
+            body->position = newPos[i];
             body->velocity = velocity[i];
         }
 
         // Write to file for plotting
         system.dumpToFile(dt, step);
-
-
-
 
         // Pushing positions for use in next loop
         lastPos = currentPos;

@@ -9,16 +9,16 @@
 
 using namespace std;
 
-// Set name of file to be read. File must contain 7 stats (mass, starting position,
-// starting velocity) on each line, separated by spaces. Each line counts as one body.
-std::ifstream infile("S_E_M.txt");
-
 int main()
 {
+    // Set name of file to be read. File must contain 7 stats (mass, starting position,
+    // starting velocity) on each line, separated by spaces. Each line counts as one body.
+    std::ifstream infile("Sun_Earth.txt");
+
     // Initial values and calculations
 
     // Set integration method. RK4 is 0, Velocity Verlet is 1, Verlet is 2
-    int method = 0;
+    int method = 2;
 
     // Set endpoint of time calculations and timestep (dt)
     float number_of_years = 5;
@@ -38,14 +38,15 @@ int main()
     }
 
     cout << "Number of bodies = "<< astCluster.numberOfBodies()<<endl;
-    //    for(int i=0;i<astCluster.numberOfBodies();i++)
-    //    {
-    //        cout << astCluster.bodies.at(i).velocity << endl;
-    //    }
-
-    //    astCluster.calculateForces();
-    //    astCluster.calculateAcceleration();
-    //    cout<<endl<<astCluster.bodies.at(1).force<<endl;
+        for(int i=0;i<astCluster.numberOfBodies();i++)
+        {
+            cout << astCluster.bodies.at(i).velocity << endl;
+        }
+        astCluster.calculateForces();
+        astCluster.calculateAcceleration();
+        vec3 kake = astCluster.bodies.at(1).force/astCluster.bodies.at(1).mass;
+        cout<<endl<<"acceleration = "<<astCluster.bodies.at(1).acceleration<<endl;
+        cout<<"force/mass = "<<kake<<endl;
 
     int n_steps = number_of_years/timestep;              // Number of calculation points
     //    int n_bodies = astCluster.numberOfBodies();

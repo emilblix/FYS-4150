@@ -247,6 +247,7 @@ std::vector<vec3> RK4::dAdtVec(Cluster &system, std::vector<vec3> A)
             forcefactor = mass_i/dr_cubed;
             valueholder = dR*forcefactor;
             dAdt[2*j+1] = dAdt[2*j+1] - valueholder;
+//            std::cout<<"forcefactor = "<<i<<", "<<j<<": "<<valueholder<<std::endl;
         }
         // Multiplying with G = 4pi^2 at the end
         dAdt[2*i+1] = dAdt[2*i+1]*G;
