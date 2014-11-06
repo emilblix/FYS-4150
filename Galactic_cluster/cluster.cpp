@@ -90,7 +90,6 @@ void Cluster::calculateAcceleration() // Calculates forces between bodies
             accFactor = body1->mass/dr_cubed;
             accVector= deltaRVector*accFactor;
             body2->acceleration = body2->acceleration-accVector;     // Force on body2 points opposite direction as deltaRvector
-//            std::cout<<"accVector = "<<i<<", "<<j<<": "<<accVector<<std::endl;
         }
         // Finally, multiplying the sum of "acceleration vectors" with 4pi^2 to get the proper acceleration
         body1->acceleration = body1->acceleration*G;
@@ -148,12 +147,12 @@ vec3 Cluster::forceAtPosition(int bodyNumber, vec3 pos)
 void Cluster::dumpToFile(double timestep, int step) // Updates the file "pos.dat" with x and y positions of all bodies
 {
     outFile << timestep*step << " " << totalEnergy() << " ";
-    for (int i = 1 ; i < 2; i++) //numberOfBodies(); i++)
+    for (int i = 0 ;i<numberOfBodies(); i++)
     {
         CelestialBody body = bodies[i];
-//        outFile << std::setprecision(16)<<body.position.x() << " " << body.position.y() << " ";
+        outFile << std::setprecision(16)<<body.position.x() << " " << body.position.y() << " ";
 
-        outFile << body.position.x() << " " << body.position.y() << " " << body.velocity.x() << " " << body.velocity.y() << " "<< body.acceleration.x() << " " << body.acceleration.y() << " ";
+//        outFile << body.position.x() << " " << body.position.y() << " " << body.velocity.x() << " " << body.velocity.y() << " "<< body.acceleration.x() << " " << body.acceleration.y() << " ";
     }
     outFile << "\n";
 }
