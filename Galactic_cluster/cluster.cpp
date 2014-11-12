@@ -5,7 +5,7 @@
 
 Cluster::Cluster()
 {
-    outFile.open("pos.dat", ios::out);
+    outFile.open("./Data/pos.dat", ios::out);
     kineticEnergy = 0;
     potentialEnergy = 0;
     angularMomentum.setToZero();
@@ -91,6 +91,7 @@ void Cluster::calculateAcceleration() // Calculates forces between bodies
             accVector= deltaRVector*accFactor;
             body2->acceleration = body2->acceleration-accVector;     // Force on body2 points opposite direction as deltaRvector
         }
+
         // Finally, multiplying the sum of "acceleration vectors" with 4pi^2 to get the proper acceleration
         body1->acceleration = body1->acceleration*G;
     }

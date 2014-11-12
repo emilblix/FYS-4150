@@ -12,7 +12,7 @@ RK4::RK4()
 //---------------------------------------------------------------------------------
 // Using vector class vec3
 
-void RK4::integrateClusterVec(Cluster &system, double dt, int n_steps)
+void RK4::integrateCluster(Cluster &system, double dt, int n_steps)
 {
     // Creating vectors
     int n_bodies = system.numberOfBodies();
@@ -23,6 +23,7 @@ void RK4::integrateClusterVec(Cluster &system, double dt, int n_steps)
     std::vector<vec3> K3 = std::vector<vec3>(2*n_bodies);
     std::vector<vec3> K4 = std::vector<vec3>(2*n_bodies);
 
+    // Time loop
     for(int step=0;step<=n_steps;step++)
     {
         // Print progress bar
@@ -44,7 +45,7 @@ void RK4::integrateClusterVec(Cluster &system, double dt, int n_steps)
         }
 
         // Runge-Kutta 4th order integration, start
-        K1= dAdtVec(system,A);
+        K1= dAdt(system,A);
 
         // Returning acceleration values to CelestialBody objects to track acceleration
         for(int i=0;i<n_bodies;i++)
@@ -54,18 +55,18 @@ void RK4::integrateClusterVec(Cluster &system, double dt, int n_steps)
         }
 
         // Runge-Kutta 4th order integration, continued
-        K1 = multv(K1,dt);
-        K2 = dAdtVec(system,addv(A,multv(K1,1/2.0))); K2 = multv(K2,dt);
-        K3 = dAdtVec(system,addv(A,multv(K2,1/2.0))); K3 = multv(K3,dt);
-        K4 = dAdtVec(system,addv(A,K3))             ; K4 = multv(K4,dt);
+        K1 = mult(K1,dt);
+        K2 = dAdt(system,add(A,mult(K1,1/2.0))); K2 = mult(K2,dt);
+        K3 = dAdt(system,add(A,mult(K2,1/2.0))); K3 = mult(K3,dt);
+        K4 = dAdt(system,add(A,K3))            ; K4 = mult(K4,dt);
 
         // Combining (K1 + 2*K2 + 2*K3 + K4)/6 into K1
-        K1 = addv(K1,K4);
-        K1 = addv(K1,multv(K2,2));
-        K1 = addv(K1,multv(K3,2));
-        K1 = multv(K1,1/6.0);
+        K1 = add(K1,K4);
+        K1 = add(K1,mult(K2,2));
+        K1 = add(K1,mult(K3,2));
+        K1 = mult(K1,1/6.0);
 
-        A = addv(A,K1);
+        A = add(A,K1);
 
         // Returning new position and velocity values to CelestialBody objects
         for(int i=1;i<n_bodies;i++)  // For stationary Sun, set startpoint i=1
@@ -80,7 +81,7 @@ void RK4::integrateClusterVec(Cluster &system, double dt, int n_steps)
 }
 
 
-std::vector<vec3> RK4::dAdtVec(Cluster &system, std::vector<vec3> A)
+std::vector<vec3> RK4::dAdt(Cluster &system, std::vector<vec3> A)           // (24 * n(n+1)/2) + 3n= 12n^2 +15n FLOPs
 {
     double pi = 4*std::atan(1.0);
     double G = 4*pi*pi;
@@ -99,7 +100,7 @@ std::vector<vec3> RK4::dAdtVec(Cluster &system, std::vector<vec3> A)
         // Derivative of position is velocity
         dAdt[2*i]   = A[2*i+1];
 
-        double mass_i = system.bodies.at(i).mass;           // (24 * n(n+1)/2) + n FLOPs
+        double mass_i = system.bodies.at(i).mass;
         for(int j=i+1; j<n_bodies; j++)
         {
             // Calculating gravitational force between objects
@@ -127,7 +128,7 @@ std::vector<vec3> RK4::dAdtVec(Cluster &system, std::vector<vec3> A)
 }
 
 // Multiplication function for a std::vector<vec3> multiplied with a scalar
-std::vector<vec3> RK4::multv(std::vector<vec3> a, double k)
+std::vector<vec3> RK4::mult(std::vector<vec3> a, double k)
 {
     for (unsigned int i=0; i < a.size(); i++)
     {
@@ -137,7 +138,7 @@ std::vector<vec3> RK4::multv(std::vector<vec3> a, double k)
 }
 
 // Function for adding two std::vector<vec3>, with test for equal length
-std::vector<vec3> RK4::addv(std::vector<vec3> a, std::vector<vec3> b)
+std::vector<vec3> RK4::add(std::vector<vec3> a, std::vector<vec3> b)
 {
     if (a.size() != b.size())
     {
@@ -152,7 +153,8 @@ std::vector<vec3> RK4::addv(std::vector<vec3> a, std::vector<vec3> b)
     return c;
 }
 
-//// Using x-, y- and z-coordinates as doubles
+/*
+// Using x-, y- and z-coordinates as doubles
 
 //void RK4::integrateCluster(Cluster &system, double dt)
 //{
@@ -166,10 +168,10 @@ std::vector<vec3> RK4::addv(std::vector<vec3> a, std::vector<vec3> b)
 //    std::vector<double> K4 = std::vector<double>(6*n_bodies);
 
 //    // Setting up A
-//    /* vector A = [x1, y1, z1, vx1, vy1, vz1    (first body)
+//     vector A = [x1, y1, z1, vx1, vy1, vz1    (first body)
 //                   x2, y2, z2, vx2, vy2, vz2    (second body)
 //                   ... for all celestial bodies
-//    */
+//
 //    for(int i=0;i<n_bodies;i++)
 //    {
 //        CelestialBody body = system.bodies[i];
@@ -266,7 +268,7 @@ std::vector<vec3> RK4::addv(std::vector<vec3> a, std::vector<vec3> b)
 //    return dAdt;
 //}
 
-//// Multiplication function for a std::vector<double> multiplied with a scalar
+// Multiplication function for a std::vector<double> multiplied with a scalar
 //std::vector<double> RK4::mult(std::vector<double> a, double k)
 //{
 //    for (unsigned int i=0; i < a.size(); i++) {
@@ -276,7 +278,7 @@ std::vector<vec3> RK4::addv(std::vector<vec3> a, std::vector<vec3> b)
 //}
 
 
-//// Function for adding two std::vector<double>, with test for equal length
+// Function for adding two std::vector<double>, with test for equal length
 //std::vector<double> RK4::add(std::vector<double> a, std::vector<double> b)
 //{
 
@@ -290,3 +292,4 @@ std::vector<vec3> RK4::addv(std::vector<vec3> a, std::vector<vec3> b)
 //    }
 //    return c;
 //}
+*/
