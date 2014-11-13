@@ -15,13 +15,13 @@ int main()
 
     // Set name of file to be read. File must contain 7 stats (mass, starting position (x,y,z),
     // starting velocity(vx,vy,vz)) on each line, separated by spaces. Each line counts as one body.
-    const char* filename = "./Data/S_E_M.txt";
+    const char* filename = "./Data/solsyst.txt";
 
     // Set integration method. RK4 is 0, Velocity Verlet is 1, Verlet is 2
     int method = 1;
 
     // Set endpoint of time calculations and timestep (dt)
-    float number_of_years = 1;
+    float number_of_years = 50;
     double timestep = 1e-4;
 
     //-----------------------------------------------------------------------------------------------

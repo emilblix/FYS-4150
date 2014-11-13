@@ -151,7 +151,7 @@ void Cluster::dumpToFile(double timestep, int step) // Updates the file "pos.dat
     for (int i = 0 ;i<numberOfBodies(); i++)
     {
         CelestialBody body = bodies[i];
-        outFile << std::setprecision(16)<<body.position.x() << " " << body.position.y() << " ";
+        outFile << std::setprecision(16)<<body.position.x() << " " << body.position.y() << " "<< body.position.z() << " ";
 
 //        outFile << body.position.x() << " " << body.position.y() << " " << body.velocity.x() << " " << body.velocity.y() << " "<< body.acceleration.x() << " " << body.acceleration.y() << " ";
     }
