@@ -1,13 +1,19 @@
 #include <iostream>
 #include <fstream>
+#include <cmath>
+#include <time.h>
 #include <celestialbody.h>
 #include <cluster.h>
 #include <rk_4.h>
+#include <rk4_adaptive.h>
 #include <verlet.h>
-#include <cmath>
-#include "time.h"
 
 using namespace std;
+
+// WARNING!!!!!!!!
+// BEFORE DELIVERY:
+// SEARCH ENTIRE PROJECT FOR balle
+// REMOVE AS NEEDED
 
 int main()
 {
@@ -17,19 +23,19 @@ int main()
     // starting velocity(vx,vy,vz)) on each line, separated by spaces. Each line counts as one body.
     const char* filename = "./Data/solsyst.txt";
 
-    // Set integration method. RK4 is 0, Velocity Verlet is 1, Verlet is 2
-    int method = 1;
+    // Set integration method. RK4 is 1, adaptive RK4 is 2, Velocity Verlet is 3, Verlet is 4
+    int method = 2;
 
     // Set endpoint of time calculations and timestep (dt)
-    float number_of_years = 50;
-    double timestep = 1e-4;
+    float number_of_years = 2;
+    double timestep = 1e-3;
 
     //-----------------------------------------------------------------------------------------------
     // Setting initial solar system and celestial bodies
     Cluster astCluster;
 
     // Add data from file as celestial bodies into the cluster
-    std::ifstream infile(filename);
+    ifstream infile(filename);
     double m, x, y, z, vx, vy, vz;
     while (infile >> m >> x >> y >> z >> vx >> vy >> vz)
     {
@@ -54,19 +60,25 @@ int main()
     start = clock();
 
     cout << "Chosen method is ";
-    if(method == 0)  // 4th order Runge-Kutta
+    if(method == 1)  // 4th order Runge-Kutta
     {
         cout << "4th Order Runge-Kutta" << endl;
         RK4::integrateCluster(astCluster,timestep,n_steps);
     }
 
-    else if(method == 1)  // Velocity Verlet
+    else if(method == 2)  // Adaptive 4th order Runge-Kutta
+    {
+        cout << "adaptive 4th Order Runge-Kutta" << endl;
+        RK4_adaptive::integrateClusterAdaptive(astCluster,timestep,n_steps);
+    }
+
+    else if(method == 3)  // Velocity Verlet
     {
         cout << "Velocity Verlet" << endl;
         Verlet::velocityVerlet(astCluster,timestep,n_steps);
     }
 
-    else if(method == 2)  // Basic Störmer-Verlet
+    else if(method == 4)  // Basic Störmer-Verlet
     {
         cout << "Basic Störmer-Verlet" << endl;
         Verlet::integrateVerlet(astCluster,timestep,n_steps);

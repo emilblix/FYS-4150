@@ -13,10 +13,10 @@ void Verlet::velocityVerlet(Cluster &system, double dt, int n_steps)
 
     // Setting initial vectors and variables
     int n_bodies = system.numberOfBodies();
-    std::vector<vec3> lastAccel = std::vector<vec3>(n_bodies);
-    std::vector<vec3> newAccel  = std::vector<vec3>(n_bodies);
-    std::vector<vec3> position  = std::vector<vec3>(n_bodies);
-    std::vector<vec3> velocity  = std::vector<vec3>(n_bodies);
+    vector<vec3> lastAccel = vector<vec3>(n_bodies);
+    vector<vec3> newAccel  = vector<vec3>(n_bodies);
+    vector<vec3> position  = vector<vec3>(n_bodies);
+    vector<vec3> velocity  = vector<vec3>(n_bodies);
 
     system.calculateAcceleration();
     for(int i=0;i<n_bodies;i++)
@@ -77,11 +77,11 @@ void Verlet::integrateVerlet(Cluster &system, double dt, int n_steps)
 
     // Setting initial vectors and variables
     int n_bodies = system.numberOfBodies();
-    std::vector<vec3> lastPos      = std::vector<vec3>(n_bodies); // r(i-1)
-    std::vector<vec3> currentPos   = std::vector<vec3>(n_bodies); // r(i)
-    std::vector<vec3> newPos       = std::vector<vec3>(n_bodies); // r(i+1)
-    std::vector<vec3> velocity     = std::vector<vec3>(n_bodies); // v(i)
-    std::vector<vec3> acceleration = std::vector<vec3>(n_bodies); // a(i)
+    vector<vec3> lastPos      = vector<vec3>(n_bodies); // r(i-1)
+    vector<vec3> currentPos   = vector<vec3>(n_bodies); // r(i)
+    vector<vec3> newPos       = vector<vec3>(n_bodies); // r(i+1)
+    vector<vec3> velocity     = vector<vec3>(n_bodies); // v(i)
+    vector<vec3> acceleration = vector<vec3>(n_bodies); // a(i)
 
     system.calculateAcceleration();
 
@@ -142,7 +142,7 @@ void Verlet::integrateVerlet(Cluster &system, double dt, int n_steps)
 }
 
 // Multiplication function for a std::vector<vec3> multiplied with a scalar
-std::vector<vec3> Verlet::mult(std::vector<vec3> a, double k)
+vector<vec3> Verlet::mult(vector<vec3> a, double k)
 {
     for (unsigned int i=0; i < a.size(); i++)
     {
@@ -152,14 +152,14 @@ std::vector<vec3> Verlet::mult(std::vector<vec3> a, double k)
 }
 
 // Function for adding two std::vector<vec3>, with test for equal length
-std::vector<vec3> Verlet::add(std::vector<vec3> a, std::vector<vec3> b)
+vector<vec3> Verlet::add(vector<vec3> a, vector<vec3> b)
 {
     if (a.size() != b.size())
     {
         std::cout << "Error: Vectors a and b must be of equal length." << std::endl;
         return a;
     }
-    std::vector<vec3> c = std::vector<vec3>(a.size());
+    vector<vec3> c = vector<vec3>(a.size());
     for (unsigned int i=0; i < a.size(); i++)
     {
         c[i] = a[i] + b[i];
@@ -168,14 +168,14 @@ std::vector<vec3> Verlet::add(std::vector<vec3> a, std::vector<vec3> b)
 }
 
 // Function for subtracting two std::vector<vec3>, with test for equal length
-std::vector<vec3> Verlet::subtract(std::vector<vec3> a, std::vector<vec3> b)
+vector<vec3> Verlet::subtract(vector<vec3> a, vector<vec3> b)
 {
     if (a.size() != b.size())
     {
         std::cout << "Error: Vectors a and b must be of equal length." << std::endl;
         return a;
     }
-    std::vector<vec3> c = std::vector<vec3>(a.size());
+    vector<vec3> c = vector<vec3>(a.size());
     for (unsigned int i=0; i < a.size(); i++)
     {
         c[i] = a[i] - b[i];

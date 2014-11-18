@@ -14,8 +14,6 @@ public:
     static std::vector<vec3> dAdt(Cluster &system, std::vector<vec3> A);
     static std::vector<vec3> mult(std::vector<vec3> a, double k);
     static std::vector<vec3> add(std::vector<vec3> a, std::vector<vec3> b);
-    static void integrateClusterAdaptive(Cluster &system, double dt, int n_steps);
-    static std::vector<vec3> dAdtAdaptive(Cluster &system, std::vector<vec3> A);
 };
 
 #endif // RK4_H
