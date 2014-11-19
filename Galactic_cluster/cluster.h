@@ -30,7 +30,7 @@ public:
     void resetAllForces();
     void resetAllAcceleration();
     vec3 forceAtPosition(int bodyNumber, vec3 pos);
-    void dumpToFile(double timestep, int step);
+    void dumpToFile(double time_elapsed);
 };
 
 #endif // CLUSTER_H

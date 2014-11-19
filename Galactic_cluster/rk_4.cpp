@@ -30,7 +30,7 @@ void RK4::integrateCluster(Cluster &system, double dt, int n_steps)
         printf("Progress: %4.1f %% \r", 100.0*((double)step)/((double)n_steps));
 
         // Write to file for plotting
-        system.dumpToFile(dt, step);
+        system.dumpToFile(dt*step);
 
         // Setting up A
         /* vector A = [position_1, velocity_1,    (first body)
@@ -57,10 +57,18 @@ void RK4::integrateCluster(Cluster &system, double dt, int n_steps)
         }
 
         // Runge-Kutta 4th order integration, continued
+
+        // K1 = dt*dAdt(system,A)
         K1 = mult(K1,dt);
+
+        // K2 = dt*dAdt(system,A+1/2*K1)
         K2 = dAdt(system,add(A,mult(K1,1/2.0))); K2 = mult(K2,dt);
+
+        // K3 = dt*dAdt(system,A+1/2*K2)
         K3 = dAdt(system,add(A,mult(K2,1/2.0))); K3 = mult(K3,dt);
-        K4 = dAdt(system,add(A,K3))            ; K4 = mult(K4,dt);
+
+        // K4 = dt*dAdt(system,A+K3)
+        K4 = dAdt(system,add(A,K3)); K4 = mult(K4,dt);
 
         // Combining (K1 + 2*K2 + 2*K3 + K4)/6 into K1
         K1 = add(K1,K4);
@@ -155,6 +163,8 @@ vector<vec3> RK4::add(vector<vec3> a, vector<vec3> b)
     return c;
 }
 
+
+// balle
 /*
 // Using x-, y- and z-coordinates as doubles
 

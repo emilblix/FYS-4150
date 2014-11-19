@@ -24,10 +24,10 @@ int main()
     const char* filename = "./Data/solsyst.txt";
 
     // Set integration method. RK4 is 1, adaptive RK4 is 2, Velocity Verlet is 3, Verlet is 4
-    int method = 2;
+    int method = 1;
 
     // Set endpoint of time calculations and timestep (dt)
-    float number_of_years = 2;
+    double number_of_years = 2;
     double timestep = 1e-3;
 
     //-----------------------------------------------------------------------------------------------
@@ -45,14 +45,16 @@ int main()
 
     cout << "Reading file " << filename << endl;
     cout << "Number of bodies = "<< astCluster.numberOfBodies()<<endl;
+
+    // balle
     //        for(int i=0;i<astCluster.numberOfBodies();i++)
     //        {
     //            cout << astCluster.bodies.at(i).velocity << endl;
     //        }
-
-
     //const double pi = 4*std::atan(1.0); // Pi with double-precision
     //const double G = 4*pi*pi;
+
+
     int n_steps = number_of_years/timestep;              // Number of calculation points
 
     // Time measurement
@@ -66,10 +68,10 @@ int main()
         RK4::integrateCluster(astCluster,timestep,n_steps);
     }
 
-    else if(method == 2)  // Adaptive 4th order Runge-Kutta
+    else if(method == 2)  // Runge-Kutta-Fehlberg (RKF45)
     {
-        cout << "adaptive 4th Order Runge-Kutta" << endl;
-        RK4_adaptive::integrateClusterAdaptive(astCluster,timestep,n_steps);
+        cout << "Runge-Kutta-Fehlberg (RKF45)" << endl;
+        RK4_adaptive::RKF_45(astCluster,timestep,number_of_years);
     }
 
     else if(method == 3)  // Velocity Verlet
@@ -95,5 +97,5 @@ int main()
 }
 
 
-
+//balle
 /* i matlab: dlmwrite */

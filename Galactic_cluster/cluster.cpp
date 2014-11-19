@@ -3,6 +3,11 @@
 #include <celestialbody.h>
 #include <cmath>
 
+// balle
+// SJEKK ALLE FUNKSJONER FOR BRUK, SLETT UNØDVENDIGE
+
+
+
 Cluster::Cluster()
 {
     outFile.open("./Data/pos.dat", ios::out);
@@ -145,9 +150,9 @@ vec3 Cluster::forceAtPosition(int bodyNumber, vec3 pos)
     return forceOnBody;
 }
 
-void Cluster::dumpToFile(double timestep, int step) // Updates the file "pos.dat" with x and y positions of all bodies
+void Cluster::dumpToFile(double time_elapsed) // Updates the file "pos.dat" with x and y positions of all bodies
 {
-    outFile << timestep*step << " " << totalEnergy() << " ";
+    outFile << time_elapsed << " " << totalEnergy() << " ";
     for (int i = 0 ;i<numberOfBodies(); i++)
     {
         CelestialBody body = bodies[i];

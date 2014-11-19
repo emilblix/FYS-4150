@@ -8,7 +8,7 @@ RK4_adaptive::RK4_adaptive()
 {
 }
 
-void RK4_adaptive::integrateClusterAdaptive(Cluster &system, double dt, int n_steps)
+void RK4_adaptive::RKF_45(Cluster &system, double dt_initial, double number_of_years)
 {
     // Creating vectors
     int n_bodies = system.numberOfBodies();
@@ -18,25 +18,48 @@ void RK4_adaptive::integrateClusterAdaptive(Cluster &system, double dt, int n_st
     vector<vec3> K2 = vector<vec3>(2*n_bodies);
     vector<vec3> K3 = vector<vec3>(2*n_bodies);
     vector<vec3> K4 = vector<vec3>(2*n_bodies);
+    vector<vec3> K5 = vector<vec3>(2*n_bodies);
+    vector<vec3> K6 = vector<vec3>(2*n_bodies);
 
+    /*
+    vector<int> test =vector<int>(5);
+    for(int i=0;i<5;i++)
+    {
+        test[i]=i+6;
+    }
+    for (int i=0;i<test.size();i++)
+    {
+    std::cout << "test1    : "<<test[i]<<std::endl;
+    }
+    std::cout << "test1size: "<<test.size() << std::endl;
+    test.clear();
+    test.push_back(4);
+    test.push_back(8);
+    for (int i=0;i<test.size();i++)
+    {
+    std::cout << "test2    : "<<test[i] << std::endl;
+    }
+    std::cout << "test2size: "<<test.size() << std::endl;
+    */
 
-//    for(int i=0;i<n_bodies;i++)
-//    {
-//        CelestialBody body = system.bodies[i];
-//        A[2*i]  = body.position;
-//        A[2*i+1]= body.velocity;
-//    }
+    for(int i=0;i<n_bodies;i++)
+    {
+        CelestialBody body = system.bodies[i];
+        A[2*i]  = body.position;
+        A[2*i+1]= body.velocity;
+    }
 
     std::cout << "A[6]: "<<A[6] << std::endl;
-
+    double dt = dt_initial;
+    double time_elapsed = 0;
     // Time loop
-    for(int step=0;step<=n_steps;step++)
+    while(time_elapsed<=number_of_years)
     {
         // Print progress bar
-        printf("Progress: %4.1f %% \r", 100.0*((double)step)/((double)n_steps));
+        printf("Progress: %4.1f %% \r", 100.0*(time_elapsed)/(number_of_years));
 
         // Write to file for plotting
-        system.dumpToFile(dt, step);
+        system.dumpToFile(time_elapsed);
 
         // Setting up A
         /* vector A = [position_1, velocity_1,    (first body)
@@ -50,7 +73,8 @@ void RK4_adaptive::integrateClusterAdaptive(Cluster &system, double dt, int n_st
             A[2*i+1]= body.velocity;
         }
 
-        // Runge-Kutta 4th order integration, start
+        //----------------------------------------------------------------
+        // Calculating K vectors
         K1= dAdt(system,A);
 
         // REMOVE BEFORE DELIVERY? balle
@@ -61,20 +85,55 @@ void RK4_adaptive::integrateClusterAdaptive(Cluster &system, double dt, int n_st
             body->acceleration=K1[2*i+1];
         }
 
-
-        // Runge-Kutta 4th order integration, continued
+        // Calculating K vectors, continued
+        // K1 = dt*dAdt(system,A)
         K1 = mult(K1,dt);
-        K2 = dAdt(system,add(A,mult(K1,1/2.0))); // dAdt(system, A+1/2*dt*K1)
+
+        // K2 = dt*dAdt(system,A +  K1*1/4)
+        K2 = dAdt(system,add(A,mult(K1,1/4.0)));
         K2 = mult(K2,dt);
-        K3 = dAdt(system,add(A,mult(K2,1/2.0))); // dAdt(system, A+1/2*dt*K2)
+
+        // K3 = dt*dAdt(system,  A +    K1*3/32    +     K2*9/32)
+        K3 = dAdt(system,add3(A,mult(K1,3/32.0),mult(K2,9/32.0)));
         K3 = mult(K3,dt);
-        K4 = dAdt(system,add(A,K3))            ; // dAdt(system, A+dt*K3)
 
-        RK4_adaptive::calcHalfstep(system,K4,dt,step);
+        // K4 = dt*dAdt(system, (A +    K1*1932/2197 )
+        K4 = dAdt(system,add(add(A,mult(K1,1932/2197.0)),
 
+                             // +   ( -K2*7200/2197   +     K3*7296/2197 ) )
+                             add(mult(K2,-7200/2197.0),mult(K3,7296/2197.0))));
         K4 = mult(K4,dt);
 
-        // Combining (K1 + 2*K2 + 2*K3 + K4)/6 into K1
+        // K5 = dt*dAdt(system,   (A +    K1*439/216        - K2*8)
+        K5 = dAdt(system,add3(add3(A,mult(K1,439/216.0),mult(K2,-8)),
+
+                                 //+ (K3*3680/513         -K4*845/4104) )
+                                 mult(K3,3680/513.0),mult(K4,-845/4104.0)));
+        K5 = mult(K5,dt);
+
+        // K6 = dt*dAdt(system,  (A    - K1* 8/27    +    K2*2 )
+        K6 = dAdt(system,add(add3(A,mult(K1,-8/27.0),mult(K2,2)),
+                             // + (   -K3* 3544/2565   +     K4*1859/4104       - K5* 11/40) )
+                             add3(mult(K3,-3544/2565.0),mult(K4,1859/4104.0),mult(K5,-11/40.0))));
+
+        //------------------------------------------------------------------------
+        // RK4 approximation
+        // Combining A + K1*25/216 + K3*1408/2565 + K4*2197/4101 - K5*1/5 into rk4approx
+        vector<vec3> rk4approx = vector<vec3>(2*n_bodies);
+        //               A +    K1*24/216   +     K3*1408/2565
+        rk4approx = add3(A,mult(K1,24/216.0),mult(K3,1408/2565.0));
+        //           previous line +    K4*2197/4101       - K5*1/5
+        rk4approx = add3(rk4approx,mult(K4,2197/4101.0),mult(K5,-1/5.0));
+
+        // RK5 approximation
+        // Combining A + K1*16/135 + K3*6656/12825 + K4*28561/56430 - K5*9/50 + K6*2/55 into rk5approx
+        vector<vec3> rk5approx = vector<vec3>(2*n_bodies);
+
+        rk5approx = add3(A,mult(K1,16/135.0),mult(K3,6656/12825.0));
+
+        rk5approx = add(rk5approx,add3(mult(K4,28561/56430.0),mult(K5,-9/50.0),mult(K6,2/55.0)));
+
+
         K1 = add(K1,K4);
         K1 = add(K1,mult(K2,2));
         K1 = add(K1,mult(K3,2));
@@ -89,55 +148,12 @@ void RK4_adaptive::integrateClusterAdaptive(Cluster &system, double dt, int n_st
             body->position = A[2*i];
             body->velocity = A[2*i+1];
         }
+        time_elapsed += dt;
     }
 }
 
-void RK4_adaptive::calcHalfstep(Cluster &system, vector<vec3> &K4, double dt, int step)
-{
-    int testValue = 0; // Value to end loop when timestep is sufficiently low
-    double newStepSize = dt;
-    double minimumStepSize = 10e-6; // Lowest acceptable timestep value
-    do{
-        vector<vec3>   halfstep;
-        vector<double> hstepmass;
-        vector<int>    hsteppos;
-        int n_bodies = system.numberOfBodies();
 
-        for(int i=0;i<n_bodies;i++)
-        {
-            CelestialBody *body = &system.bodies[i];
-            if(dt > 0.8/K4[2*i+1].length())
-            {
-                halfstep.push_back(K4[2*i+1]);
-                hstepmass.push_back(body->mass);
-                hsteppos.push_back(i);
-            }
-
-        }
-        if (halfstep.size()>1.0)
-        {
-            newStepSize = newStepSize*0.5;
-            step = step + newStepSize;
-
-
-            // kalkulere dAdT
-        }
-        else {testValue=1;}
-    }while(testValue==0 && newStepSize > minimumStepSize);
-
-
-
-}
-
-
-//vector<vec3>RK4_adaptive::dHalfstepdt(Cluster system, vector<vec3> HS, vector<vec3> K1)
-//{
-
-//}
-
-
-
-vector<vec3> RK4_adaptive::dAdt(Cluster &system, vector<vec3> A)           // (24 * n(n+1)/2) + 3n= 12n^2 +15n FLOPs
+vector<vec3> RK4_adaptive::dAdt(Cluster &system, vector<vec3> A)  // (24 * n(n+1)/2) + 3n= 12n^2 +15n FLOPs
 {
     double pi = 4*std::atan(1.0);
     double G = 4*pi*pi;
@@ -207,6 +223,129 @@ vector<vec3> RK4_adaptive::add(vector<vec3> a, vector<vec3> b)
     }
     return c;
 }
+
+// Function for adding three std::vector<vec3>, with test for equal length
+vector<vec3> RK4_adaptive::add3(vector<vec3> a, vector<vec3> b,vector <vec3> c)
+{
+    if (a.size() != b.size() || a.size() != c.size())
+    {
+        std::cout << "Error: Vectors a, b and c must be of equal length." << std::endl;
+        return a;
+    }
+    vector<vec3> d = vector<vec3>(a.size());
+    for (unsigned int i=0; i < a.size(); i++)
+    {
+        d[i] = a[i] + b[i] + c[i];
+    }
+    return d;
+}
+
+// Function for subtracting two std::vector<vec3>, with test for equal length
+vector<vec3> RK4_adaptive::subtract(vector<vec3> a, vector<vec3> b)
+{
+    if (a.size() != b.size())
+    {
+        std::cout << "Error: Vectors a and b must be of equal length." << std::endl;
+        return a;
+    }
+    vector<vec3> c = vector<vec3>(a.size());
+    for (unsigned int i=0; i < a.size(); i++)
+    {
+        c[i] = a[i] - b[i];
+    }
+    return c;
+}
+
+
+
+// balle
+/*
+vector<vec3> operator+( vector<vec3> &a, vector<vec3> &b)
+{
+    if (a.size() != b.size())
+    {
+        std::cout << "Error: Vectors a and b must be of equal length." << std::endl;
+        return a;
+    }
+    vector<vec3> c = vector<vec3>(a.size());
+    for (unsigned int i=0; i < a.size(); i++)
+    {
+        c[i] = a[i] + b[i];
+    }
+    return c;
+}
+*/
+/*
+#include <algorithm>
+#include <functional>
+
+template <typename T>
+std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
+{
+    assert(a.size() == b.size());
+
+    std::vector<T> result;
+    result.reserve(a.size());
+
+    std::transform(a.begin(), a.end(), b.begin(),
+                   std::back_inserter(result), std::plus<T>());
+    return result;
+}
+*/
+
+/*
+void RK4_adaptive::halfstep(Cluster &system, vector<vec3> A, vector<vec3> &K, double dt, int step)
+{
+    int testValue = 0; // Value to end loop when timestep is sufficiently low
+    double newStepSize = dt;
+    double minimumStepSize = 10e-6; // Lowest acceptable timestep value
+    int halvingcounter = 0;         // Counts how many times the step size has been halved
+    vector<vec3>   hsteppos;
+    vector<double> hstepmass;
+    vector<int>    hstepnum;
+
+    // while loop to check
+    while(testValue==0 && newStepSize > minimumStepSize)
+    {
+        hsteppos.clear();
+        hstepmass.clear();
+        hstepnum.clear();
+        int n_bodies = system.numberOfBodies();
+
+        for(int i=0;i<n_bodies;i++)
+        {
+            CelestialBody *body = &system.bodies[i];
+            if(dt > 0.8/K[2*i+1].length())
+            {
+                hsteppos.push_back(K[2*i+1]);
+                hstepmass.push_back(body->mass);
+                hstepnum.push_back(i);
+            }
+
+        }
+        if (hsteppos.size()>0.5)
+        {
+            newStepSize = newStepSize*0.5;
+            step = step + newStepSize;
+            halvingcounter += 1;
+
+
+            // kalkulere dAdT
+        }
+        else {testValue=1;}
+    }
+
+
+
+}
+
+
+//vector<vec3>RK4_adaptive::dHalfstepdt(Cluster system, vector<vec3> HS, vector<vec3> K1)
+//{
+
+//}
+
+*/
 
 
 // rk4_adaptive.cpp

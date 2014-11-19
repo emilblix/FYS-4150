@@ -1,6 +1,8 @@
 #include <celestialbody.h>
 #include <vec3.h>
 
+// balle
+// SJEKK ALLE FUNKSJONER FOR BRUK, SLETT UNØDVENDIGE
 
 
 CelestialBody::CelestialBody(double mass_, double x, double y, double z, double vx, double vy, double vz)

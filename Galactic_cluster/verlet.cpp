@@ -28,7 +28,7 @@ void Verlet::velocityVerlet(Cluster &system, double dt, int n_steps)
     }
 
     // Write first step to file for plotting
-    system.dumpToFile(dt, 0);
+    system.dumpToFile(0);
 
     // Time loop
     for(int step=1;step<=n_steps;step++)
@@ -67,7 +67,7 @@ void Verlet::velocityVerlet(Cluster &system, double dt, int n_steps)
         lastAccel = newAccel;
 
         // Write to file for plotting
-        system.dumpToFile(dt, step);
+        system.dumpToFile(dt*step);
     }
 
 }
@@ -86,7 +86,7 @@ void Verlet::integrateVerlet(Cluster &system, double dt, int n_steps)
     system.calculateAcceleration();
 
     // Write first step to file for plotting
-    system.dumpToFile(dt, 0);
+    system.dumpToFile(0);
 
     for(int i=0;i<n_bodies;i++)
     {
@@ -131,7 +131,7 @@ void Verlet::integrateVerlet(Cluster &system, double dt, int n_steps)
         }
 
         // Write to file for plotting
-        system.dumpToFile(dt, step);
+        system.dumpToFile(dt*step);
 
         // Pushing positions for use in next loop
         lastPos = currentPos;
