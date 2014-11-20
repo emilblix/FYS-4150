@@ -10,7 +10,7 @@
 
 Cluster::Cluster()
 {
-    outFile.open("./Data/pos.dat", ios::out);
+    outFile.open("../ClusterData/pos.dat", ios::out);
     kineticEnergy = 0;
     potentialEnergy = 0;
     angularMomentum.setToZero();

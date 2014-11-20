@@ -1,8 +1,18 @@
 #include <rk_4.h>
 #include <vec3.h>
 #include <cmath>
+#include <vector_operations.h>
 
 using std::vector;
+
+
+//vector<vec3> operator*(vector<vec3> a, double k) {
+//    for (unsigned int i=0; i < a.size(); i++)
+//    {
+//        a[i] = a[i]*k;
+//    }
+//    return a;
+//}
 
 RK4::RK4()
 {
@@ -14,7 +24,13 @@ RK4::RK4()
 
 void RK4::integrateCluster(Cluster &system, double dt, int n_steps)
 {
-    // Creating vectors
+    // //{
+    //    for (unsigned int i=0; i < a.size(); i++)
+    //    {
+    //        a[i] = a[i]*k;
+    //    }
+    //    return a;
+    //}Creating vectors
     int n_bodies = system.numberOfBodies();
 
     vector<vec3> A  = vector<vec3>(2*n_bodies);
@@ -59,24 +75,17 @@ void RK4::integrateCluster(Cluster &system, double dt, int n_steps)
         // Runge-Kutta 4th order integration, continued
 
         // K1 = dt*dAdt(system,A)
-        K1 = mult(K1,dt);
+        K1 = K1*dt;
 
-        // K2 = dt*dAdt(system,A+1/2*K1)
-        K2 = dAdt(system,add(A,mult(K1,1/2.0))); K2 = mult(K2,dt);
+        K2 = dAdt(system, A+K1*(1/2.0)) * dt;
 
         // K3 = dt*dAdt(system,A+1/2*K2)
-        K3 = dAdt(system,add(A,mult(K2,1/2.0))); K3 = mult(K3,dt);
+        K3 = dAdt(system, A+K2*(1/2.0)) * dt;
 
         // K4 = dt*dAdt(system,A+K3)
-        K4 = dAdt(system,add(A,K3)); K4 = mult(K4,dt);
+        K4 = dAdt(system,A+K3) * dt;
 
-        // Combining (K1 + 2*K2 + 2*K3 + K4)/6 into K1
-        K1 = add(K1,K4);
-        K1 = add(K1,mult(K2,2));
-        K1 = add(K1,mult(K3,2));
-        K1 = mult(K1,1/6.0);
-
-        A = add(A,K1);
+        A = A + ((K1 + K2*2 + K3*2 + K4)*(1/6.0));
 
         // Returning new position and velocity values to CelestialBody objects
         for(int i=1;i<n_bodies;i++)  // For stationary Sun, set startpoint i=1
@@ -137,6 +146,8 @@ vector<vec3> RK4::dAdt(Cluster &system, vector<vec3> A)           // (24 * n(n+1
     return dAdt;
 }
 
+
+/*
 // Multiplication function for a std::vector<vec3> multiplied with a scalar
 vector<vec3> RK4::mult(vector<vec3> a, double k)
 {
@@ -162,6 +173,9 @@ vector<vec3> RK4::add(vector<vec3> a, vector<vec3> b)
     }
     return c;
 }
+
+*/
+
 
 
 // balle

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include <cmath>
 #include <time.h>
 #include <celestialbody.h>
@@ -15,19 +16,60 @@ using namespace std;
 // SEARCH ENTIRE PROJECT FOR balle
 // REMOVE AS NEEDED
 
+/*
+//vector<vec3> operator*(vector<vec3> a, double k) {
+//    for (unsigned int i=0; i < a.size(); i++)
+//    {
+//        a[i] = a[i]*k;
+//    }
+//    return a;
+//}
+
+//// Function for adding two std::vector<vec3>, with test for equal length
+//vector<vec3> operator+(vector<vec3> a, vector<vec3> b){
+//    if (a.size() != b.size())
+//    {
+//        std::cout << "Error: Vectors a and b must be of equal length." << std::endl;
+//        return a;
+//    }
+//    vector<vec3> c = vector<vec3>(a.size());
+//    for (unsigned int i=0; i < a.size(); i++)
+//    {
+//        c[i] = a[i] + b[i];
+//    }
+//    return c;
+//}
+
+//// Function for subtracting two std::vector<vec3>, with test for equal length
+//vector<vec3> operator-(vector<vec3> a, vector<vec3> b){
+//    if (a.size() != b.size())
+//    {
+//        std::cout << "Error: Vectors a and b must be of equal length." << std::endl;
+//        return a;
+//    }
+//    vector<vec3> c = vector<vec3>(a.size());
+//    for (unsigned int i=0; i < a.size(); i++)
+//    {
+//        c[i] = a[i] - b[i];
+//    }
+//    return c;
+//}
+
+*/
+
 int main()
 {
     // INPUT AREA
 
     // Set name of file to be read. File must contain 7 stats (mass, starting position (x,y,z),
     // starting velocity(vx,vy,vz)) on each line, separated by spaces. Each line counts as one body.
-    const char* filename = "./Data/solsyst.txt";
+    const char* filename = "../ClusterData/S_E_M.txt";
 
     // Set integration method. RK4 is 1, adaptive RK4 is 2, Velocity Verlet is 3, Verlet is 4
-    int method = 1;
+    int method = 2;
 
     // Set endpoint of time calculations and timestep (dt)
-    double number_of_years = 2;
+    double total_time = 2;
     double timestep = 1e-3;
 
     //-----------------------------------------------------------------------------------------------
@@ -55,7 +97,25 @@ int main()
     //const double G = 4*pi*pi;
 
 
-    int n_steps = number_of_years/timestep;              // Number of calculation points
+//    // FOR SOLAR SYSTEM ONLY:
+
+//    double xCenter = 0;
+//    double totMass = 0;
+//    for(int i=0;i<astCluster.numberOfBodies();i++)
+//    {
+//        CelestialBody *body = &astCluster.bodies.at(i);
+//        xCenter += body->mass*body->position.x();
+//        totMass += body->mass;
+//    }
+//    xCenter = xCenter/totMass;
+
+//    for(int i=0;i<astCluster.numberOfBodies();i++)
+//    {
+//        CelestialBody *body = &astCluster.bodies.at(i);
+//        body->position.set(body->position.x()- xCenter,0,0);
+//    }
+
+    int n_steps = total_time/timestep;              // Number of calculation points
 
     // Time measurement
     clock_t start, finish;
@@ -71,7 +131,7 @@ int main()
     else if(method == 2)  // Runge-Kutta-Fehlberg (RKF45)
     {
         cout << "Runge-Kutta-Fehlberg (RKF45)" << endl;
-        RK4_adaptive::RKF_45(astCluster,timestep,number_of_years);
+        RK4_adaptive::RKF_45(astCluster,timestep,total_time);
     }
 
     else if(method == 3)  // Velocity Verlet
@@ -98,4 +158,16 @@ int main()
 
 
 //balle
-/* i matlab: dlmwrite */
+/* i matlab: dlmwrite
+
+while global time<T
+    do twice
+        do twice
+            update status of bodies using timestep dtmin
+            global time ++
+        update states of bodies using timestep dtmedium
+    update states of bodies using timestep dtmax
+    compute new timestep for all bodies
+
+
+*/

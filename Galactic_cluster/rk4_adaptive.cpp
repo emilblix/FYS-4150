@@ -1,6 +1,7 @@
 #include <rk4_adaptive.h>
 #include <vec3.h>
 #include <cmath>
+#include <vector_operations.h>
 
 using std::vector;
 
@@ -8,7 +9,7 @@ RK4_adaptive::RK4_adaptive()
 {
 }
 
-void RK4_adaptive::RKF_45(Cluster &system, double dt_initial, double number_of_years)
+void RK4_adaptive::RKF_45(Cluster &system, double dt_initial, double total_time)
 {
     // Creating vectors
     int n_bodies = system.numberOfBodies();
@@ -49,14 +50,14 @@ void RK4_adaptive::RKF_45(Cluster &system, double dt_initial, double number_of_y
         A[2*i+1]= body.velocity;
     }
 
-    std::cout << "A[6]: "<<A[6] << std::endl;
+    std::cout << "A[2]: "<<A[2] << std::endl;
     double dt = dt_initial;
     double time_elapsed = 0;
     // Time loop
-    while(time_elapsed<=number_of_years)
+    while(time_elapsed<=total_time)
     {
         // Print progress bar
-        printf("Progress: %4.1f %% \r", 100.0*(time_elapsed)/(number_of_years));
+        printf("Progress: %4.1f %% \r", 100.0*(time_elapsed)/(total_time));
 
         // Write to file for plotting
         system.dumpToFile(time_elapsed);
@@ -87,62 +88,59 @@ void RK4_adaptive::RKF_45(Cluster &system, double dt_initial, double number_of_y
 
         // Calculating K vectors, continued
         // K1 = dt*dAdt(system,A)
-        K1 = mult(K1,dt);
+        K1 = K1*dt;
 
         // K2 = dt*dAdt(system,A +  K1*1/4)
-        K2 = dAdt(system,add(A,mult(K1,1/4.0)));
-        K2 = mult(K2,dt);
+        K2 = dAdt(system,A + K1*(1/4.0) ) * dt;
+//        K2 = mult(K2,dt);
 
-        // K3 = dt*dAdt(system,  A +    K1*3/32    +     K2*9/32)
-        K3 = dAdt(system,add3(A,mult(K1,3/32.0),mult(K2,9/32.0)));
-        K3 = mult(K3,dt);
+     // K3 = dAdt(system, A + K1* 3/32    + K2* 9/32   ) * dt
+        K3 = dAdt(system, A + K1*(3/32.0) + K2*(9/32.0)) * dt;
 
-        // K4 = dt*dAdt(system, (A +    K1*1932/2197 )
-        K4 = dAdt(system,add(add(A,mult(K1,1932/2197.0)),
+     // K4 = dAdt(system,A + K1* 1932/2197    - K2* 7200/2197     + K3* 7296/2197    ) * dt
+        K4 = dAdt(system,A + K1*(1932/2197.0) + K2*(-7200/2197.0) + K3*(7296/2197.0) ) * dt;
 
-                             // +   ( -K2*7200/2197   +     K3*7296/2197 ) )
-                             add(mult(K2,-7200/2197.0),mult(K3,7296/2197.0))));
-        K4 = mult(K4,dt);
+//        K4 = mult(K4,dt);
 
-        // K5 = dt*dAdt(system,   (A +    K1*439/216        - K2*8)
-        K5 = dAdt(system,add3(add3(A,mult(K1,439/216.0),mult(K2,-8)),
+        // K5 =dAdt(system,A + K1* 439/216    - K2*  8  + K3* 3680/513    - K4* 845/4104    ) * dt
+        K5 = dAdt(system,  A + K1*(439/216.0) + K2*(-8) + K3*(3680/513.0) + K4*(-845/4104.0)) * dt;
 
-                                 //+ (K3*3680/513         -K4*845/4104) )
-                                 mult(K3,3680/513.0),mult(K4,-845/4104.0)));
-        K5 = mult(K5,dt);
+//        K5 = mult(K5,dt);
 
-        // K6 = dt*dAdt(system,  (A    - K1* 8/27    +    K2*2 )
-        K6 = dAdt(system,add(add3(A,mult(K1,-8/27.0),mult(K2,2)),
-                             // + (   -K3* 3544/2565   +     K4*1859/4104       - K5* 11/40) )
-                             add3(mult(K3,-3544/2565.0),mult(K4,1859/4104.0),mult(K5,-11/40.0))));
+      // K6 =dAdt(system,A - K1*  8/27    + K2*2 - K3*  3544/2565    + K4* 1859/4104    - K5*  11/40   ) * dt
+        K6 = dAdt(system,A + K1*(-8/27.0) + K2*2 + K3*(-3544/2565.0) + K4*(1859/4104.0) + K5*(-11/40.0)) * dt;
+
+//        K6 = mult(K6,dt);
 
         //------------------------------------------------------------------------
         // RK4 approximation
         // Combining A + K1*25/216 + K3*1408/2565 + K4*2197/4101 - K5*1/5 into rk4approx
         vector<vec3> rk4approx = vector<vec3>(2*n_bodies);
-        //               A +    K1*24/216   +     K3*1408/2565
-        rk4approx = add3(A,mult(K1,24/216.0),mult(K3,1408/2565.0));
-        //           previous line +    K4*2197/4101       - K5*1/5
-        rk4approx = add3(rk4approx,mult(K4,2197/4101.0),mult(K5,-1/5.0));
+        rk4approx = A + K1*(25/216.0) + K3*(1408/2565.0) + K4*(2197/4101.0) + K5*(-1/5.0);
+
 
         // RK5 approximation
         // Combining A + K1*16/135 + K3*6656/12825 + K4*28561/56430 - K5*9/50 + K6*2/55 into rk5approx
         vector<vec3> rk5approx = vector<vec3>(2*n_bodies);
-
+        //               A  +   K1*16/135   +     K3*6656/12825
         rk5approx = add3(A,mult(K1,16/135.0),mult(K3,6656/12825.0));
-
+        //              previous line +     K4*28561/56430     -    K5*9/50    +    K6*2/55
         rk5approx = add(rk5approx,add3(mult(K4,28561/56430.0),mult(K5,-9/50.0),mult(K6,2/55.0)));
 
 
-        K1 = add(K1,K4);
-        K1 = add(K1,mult(K2,2));
-        K1 = add(K1,mult(K3,2));
-        K1 = mult(K1,1/6.0);
+//        K1 = add(K1,K4);
+//        K1 = add(K1,mult(K2,2));
+//        K1 = add(K1,mult(K3,2));
+//        K1 = mult(K1,1/6.0);
 
-        A = add(A,K1);
+
+        A = rk5approx;
+
+
+
 
         // Returning new position and velocity values to CelestialBody objects
-        for(int i=1;i<n_bodies;i++)  // For stationary Sun, set startpoint i=1
+        for(int i=0;i<n_bodies;i++)  // For stationary Sun, set startpoint i=1
         {
             CelestialBody *body = &system.bodies[i];
             body->position = A[2*i];
@@ -197,6 +195,7 @@ vector<vec3> RK4_adaptive::dAdt(Cluster &system, vector<vec3> A)  // (24 * n(n+1
     }
     return dAdt;
 }
+
 
 // Multiplication function for a std::vector<vec3> multiplied with a scalar
 vector<vec3> RK4_adaptive::mult(vector<vec3> a, double k)

@@ -9,7 +9,9 @@ SOURCES += main.cpp \
     rk_4.cpp \
     verlet.cpp \
     cluster.cpp \
-    rk4_adaptive.cpp
+    rk4_adaptive.cpp \
+    verlet_adaptive.cpp \
+    vector_operations.cpp
 
 HEADERS += \
     celestialbody.h \
@@ -17,5 +19,7 @@ HEADERS += \
     rk_4.h \
     verlet.h \
     cluster.h \
-    rk4_adaptive.h
+    rk4_adaptive.h \
+    verlet_adaptive.h \
+    vector_operations.h
 

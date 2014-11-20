@@ -1,6 +1,7 @@
 #include <verlet.h>
 #include <vec3.h>
 #include <cmath>
+#include <vector_operations.h>
 
 using std::vector;
 
@@ -37,7 +38,7 @@ void Verlet::velocityVerlet(Cluster &system, double dt, int n_steps)
         printf("Progress: %4.1f %% \r", 100.0*((double)step)/((double)n_steps));
 
         // Calculate new position, split into two lines for readability
-        position = add(position, mult(velocity,dt)         );     // r(i) = r(i-1) + v(i-1)*dt
+        position = add(position, (velocity*dt)         );     // r(i) = r(i-1) + v(i-1)*dt
         position = add(position, mult(lastAccel,dt*dt/2.0) );     // r(i) =    above line      + 1/2 a*dt^2
 
          // Returning new position values to CelestialBody objects
@@ -71,7 +72,7 @@ void Verlet::velocityVerlet(Cluster &system, double dt, int n_steps)
     }
 
 }
-
+#include <vector_operations.h>
 void Verlet::integrateVerlet(Cluster &system, double dt, int n_steps)
 {
 
