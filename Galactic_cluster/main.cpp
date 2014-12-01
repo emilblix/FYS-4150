@@ -63,13 +63,13 @@ int main()
 
     // Set name of file to be read. File must contain 7 stats (mass, starting position (x,y,z),
     // starting velocity(vx,vy,vz)) on each line, separated by spaces. Each line counts as one body.
-    const char* filename = "../ClusterData/S_E_M.txt";
+    const char* filename = "../ClusterData/solsyst.txt";
 
     // Set integration method. RK4 is 1, adaptive RK4 is 2, Velocity Verlet is 3, Verlet is 4
-    int method = 2;
+    int method = 1;
 
     // Set endpoint of time calculations and timestep (dt)
-    double total_time = 2;
+    double total_time = 300;
     double timestep = 1e-3;
 
     //-----------------------------------------------------------------------------------------------

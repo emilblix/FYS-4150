@@ -23,6 +23,7 @@ void RK4_adaptive::RKF_45(Cluster &system, double dt_initial, double total_time)
     vector<vec3> K6 = vector<vec3>(2*n_bodies);
 
     /*
+    balle
     vector<int> test =vector<int>(5);
     for(int i=0;i<5;i++)
     {
@@ -92,7 +93,7 @@ void RK4_adaptive::RKF_45(Cluster &system, double dt_initial, double total_time)
 
         // K2 = dt*dAdt(system,A +  K1*1/4)
         K2 = dAdt(system,A + K1*(1/4.0) ) * dt;
-//        K2 = mult(K2,dt);
+
 
      // K3 = dAdt(system, A + K1* 3/32    + K2* 9/32   ) * dt
         K3 = dAdt(system, A + K1*(3/32.0) + K2*(9/32.0)) * dt;
@@ -134,7 +135,8 @@ void RK4_adaptive::RKF_45(Cluster &system, double dt_initial, double total_time)
 //        K1 = mult(K1,1/6.0);
 
 
-        A = rk5approx;
+//        A = rk5approx;
+//        if();
 
 
 
