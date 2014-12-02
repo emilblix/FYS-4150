@@ -51,22 +51,24 @@ void RK4_adaptive::RKF_45(Cluster &system, double dt_initial, double total_time)
         A[2*i+1]= body.velocity;
     }
 
-    std::cout << "A[2]: "<<A[2] << std::endl;
+//    std::cout << "A[2]: "<<A[2] << std::endl;
     double dt = dt_initial;
     double time_elapsed = 0;
+    double tolerance = 1e-10;
+
+    // Write first step to file for plotting
+    system.dumpToFile(time_elapsed);
+
     // Time loop
     while(time_elapsed<=total_time)
     {
         // Print progress bar
         printf("Progress: %4.1f %% \r", 100.0*(time_elapsed)/(total_time));
 
-        // Write to file for plotting
-        system.dumpToFile(time_elapsed);
 
         // Setting up A
-        /* vector A = [position_1, velocity_1,    (first body)
-                   position_2, velocity_2,    (second body)
-                   ... for all celestial bodies]
+        /* vector A = [position_1, velocity_1, position_2, velocity_2,  ... , position_(n_bodies), velocity_(n_bodies)]
+                           (first body)            (second body)                 for all celestial bodies
         */
         for(int i=0;i<n_bodies;i++)
         {
@@ -76,7 +78,7 @@ void RK4_adaptive::RKF_45(Cluster &system, double dt_initial, double total_time)
         }
 
         //----------------------------------------------------------------
-        // Calculating K vectors
+        // Calculating K vectors, K1 is equal for RK4 and RKF45
         K1= dAdt(system,A);
 
         // REMOVE BEFORE DELIVERY? balle
@@ -91,69 +93,133 @@ void RK4_adaptive::RKF_45(Cluster &system, double dt_initial, double total_time)
         // K1 = dt*dAdt(system,A)
         K1 = K1*dt;
 
-        // K2 = dt*dAdt(system,A +  K1*1/4)
-        K2 = dAdt(system,A + K1*(1/4.0) ) * dt;
+        //---------------------------------------------------------------------------------------------
+        // RK4 approximation using basic RK4 weighting
 
+        K2 = dAdt(system, A+K1*(1/2.0)) * dt;
 
-     // K3 = dAdt(system, A + K1* 3/32    + K2* 9/32   ) * dt
+        K3 = dAdt(system, A+K2*(1/2.0)) * dt;
+
+        K4 = dAdt(system, A+K3        ) * dt;
+
+        vector<vec3> rk4approx = vector<vec3>(2*n_bodies);
+
+        rk4approx = A + ((K1 + K2*2 + K3*2 + K4)*(1/6.0));
+
+        //---------------------------------------------------------------------------------------------
+        // RK5 approximation using RKF45 weighting
+
+        K2 = dAdt(system, A + K1*(1/4.0) ) * dt;
+
         K3 = dAdt(system, A + K1*(3/32.0) + K2*(9/32.0)) * dt;
 
-     // K4 = dAdt(system,A + K1* 1932/2197    - K2* 7200/2197     + K3* 7296/2197    ) * dt
-        K4 = dAdt(system,A + K1*(1932/2197.0) + K2*(-7200/2197.0) + K3*(7296/2197.0) ) * dt;
+        K4 = dAdt(system, A + K1*(1932/2197.0) + K2*(-7200/2197.0) + K3*(7296/2197.0) ) * dt;
 
-//        K4 = mult(K4,dt);
+        K5 = dAdt(system, A + K1*(439/216.0) + K2*(-8) + K3*(3680/513.0) + K4*(-845/4104.0)) * dt;
 
-        // K5 =dAdt(system,A + K1* 439/216    - K2*  8  + K3* 3680/513    - K4* 845/4104    ) * dt
-        K5 = dAdt(system,  A + K1*(439/216.0) + K2*(-8) + K3*(3680/513.0) + K4*(-845/4104.0)) * dt;
-
-//        K5 = mult(K5,dt);
-
-      // K6 =dAdt(system,A - K1*  8/27    + K2*2 - K3*  3544/2565    + K4* 1859/4104    - K5*  11/40   ) * dt
-        K6 = dAdt(system,A + K1*(-8/27.0) + K2*2 + K3*(-3544/2565.0) + K4*(1859/4104.0) + K5*(-11/40.0)) * dt;
-
-//        K6 = mult(K6,dt);
-
-        //------------------------------------------------------------------------
-        // RK4 approximation
-        // Combining A + K1*25/216 + K3*1408/2565 + K4*2197/4101 - K5*1/5 into rk4approx
-        vector<vec3> rk4approx = vector<vec3>(2*n_bodies);
-        rk4approx = A + K1*(25/216.0) + K3*(1408/2565.0) + K4*(2197/4101.0) + K5*(-1/5.0);
-
+        K6 = dAdt(system, A + K1*(-8/27.0) + K2*2 + K3*(-3544/2565.0) + K4*(1859/4104.0) + K5*(-11/40.0)) * dt;
 
         // RK5 approximation
-        // Combining A + K1*16/135 + K3*6656/12825 + K4*28561/56430 - K5*9/50 + K6*2/55 into rk5approx
         vector<vec3> rk5approx = vector<vec3>(2*n_bodies);
-        //               A  +   K1*16/135   +     K3*6656/12825
-        rk5approx = add3(A,mult(K1,16/135.0),mult(K3,6656/12825.0));
-        //              previous line +     K4*28561/56430     -    K5*9/50    +    K6*2/55
-        rk5approx = add(rk5approx,add3(mult(K4,28561/56430.0),mult(K5,-9/50.0),mult(K6,2/55.0)));
 
+        rk5approx = A + K1*(16/135.0) + K3*(6656/12825.0) + K4*(28561/56430.0) + K5*(-9/50.0) + K6*(2/55.0);
 
-//        K1 = add(K1,K4);
-//        K1 = add(K1,mult(K2,2));
-//        K1 = add(K1,mult(K3,2));
-//        K1 = mult(K1,1/6.0);
-
-
-//        A = rk5approx;
-//        if();
+        // RK4 approximation
+        // Combining A + K1*25/216     + K3*1408/2565     + K4*2197/4101     - K5*1/5 into rk4approx
+//         rk4approx =  A + K1*(25/216.0) + K3*(1408/2565.0) + K4*(2197/4101.0) + K5*(-1/5.0);
 
 
 
+//        A = rk4approx;
 
-        // Returning new position and velocity values to CelestialBody objects
-        for(int i=0;i<n_bodies;i++)  // For stationary Sun, set startpoint i=1
+
+        //-------------------------------------------------------------------------------------------------------
+//        // Comparing total energy between methods
+//        double currentEnergy = system.totalEnergy();
+////        std::cout<<"currentEnergy: "<<currentEnergy<<std::endl;
+////        currentEnergy = log10(fabs(currentEnergy));
+////        std::cout<<"currentEnergy: "<<currentEnergy<<std::endl;
+
+//        for(int i=0;i<n_bodies;i++)
+//        {
+//            CelestialBody *body = &system.bodies[i];
+//            body->position = rk4approx[2*i];
+//        }
+////        double rk4energy = log10(fabs(system.totalEnergy()));
+////        std::cout<<"rk4energy: "<<rk4energy<<std::endl;
+//        double rk4energy =fabs(currentEnergy-rk4energy);
+//        for(int i=0;i<n_bodies;i++)
+//        {
+//            CelestialBody *body = &system.bodies[i];
+//            body->position = rk5approx[2*i];
+//        }
+////        double rk5energy = log10(fabs(system.totalEnergy()));
+////        std::cout<<"rk5energy: "<<rk5energy<<std::endl;
+//        double rk5energy = fabs(currentEnergy-rk5energy);
+
+//        double diffMethods = fabs(rk4energy / rk5energy);
+//        diffMethods = pow(10,diffMethods);
+//        std::cout<<"diffm: "<<diffMethods<<std::endl;
+
+        double diffMethods = 0;
+        double rk5absvalue = 0;
+        for (int i=0;i<2*n_bodies;i++)
         {
-            CelestialBody *body = &system.bodies[i];
-            body->position = A[2*i];
-            body->velocity = A[2*i+1];
+            vec3 diffVector = rk5approx[i]-rk4approx[i];
+            diffMethods += fabs(diffVector.x()) + fabs(diffVector.y()) + fabs(diffVector.z());
+            rk5absvalue += fabs(rk5approx[i].x()) + fabs(rk5approx[i].y()) + fabs(rk5approx[i].z());
         }
-        time_elapsed += dt;
+//        std::cout<<"rk5abs: "<<rk5absvalue<<std::endl;
+        diffMethods = diffMethods/rk5absvalue;
+//        std::cout<<"diffm: "<<diffMethods<<std::endl;
+        diffMethods = diffMethods/(6*n_bodies);
+
+        if(diffMethods > tolerance*10)
+        {
+            double s = pow(tolerance/(2*diffMethods),1/4.0);
+//            s=0.5;
+            dt = dt*s;
+            printf("Time step decreased by a factor %4f to %4f \n",s,dt);
+        }
+        else if(diffMethods < tolerance*0.1)
+        {
+            double s = pow(tolerance/(2*diffMethods),1/4.0);
+//            s=2;
+            dt = dt*s;
+            printf("Time step increased by a factor %4f to %4f \n",s,dt);
+        }
+        else
+        {
+            // Returning new position and velocity values to CelestialBody objects using the accepted RK5 approximation
+            for(int i=0;i<n_bodies;i++)
+            {
+                CelestialBody *body = &system.bodies[i];
+                body->position = rk5approx[2*i];
+                body->velocity = rk5approx[2*i+1];
+            }
+            time_elapsed += dt;
+            // Write to file for plotting
+            system.dumpToFile(time_elapsed);
+        }
+        // The system needs to take a few steps at the start for the total energy to stabilize
+//        else
+//        {
+////            A = A + rk5approx;
+//            // Returning new position and velocity values to CelestialBody objects
+//            for(int i=0;i<n_bodies;i++)
+//            {
+//                CelestialBody *body = &system.bodies[i];
+//                body->position = rk5approx[2*i];
+//                body->velocity = rk5approx[2*i+1];
+//            }
+//            time_elapsed += dt_initial;
+//            // Write to file for plotting
+//            system.dumpToFile(time_elapsed);
+//        }
     }
 }
 
-
-vector<vec3> RK4_adaptive::dAdt(Cluster &system, vector<vec3> A)  // (24 * n(n+1)/2) + 3n= 12n^2 +15n FLOPs
+vector<vec3> RK4_adaptive::dAdt(Cluster &system, vector<vec3> A)
 {
     double pi = 4*std::atan(1.0);
     double G = 4*pi*pi;
@@ -198,7 +264,7 @@ vector<vec3> RK4_adaptive::dAdt(Cluster &system, vector<vec3> A)  // (24 * n(n+1
     return dAdt;
 }
 
-
+/*
 // Multiplication function for a std::vector<vec3> multiplied with a scalar
 vector<vec3> RK4_adaptive::mult(vector<vec3> a, double k)
 {
@@ -256,7 +322,7 @@ vector<vec3> RK4_adaptive::subtract(vector<vec3> a, vector<vec3> b)
     }
     return c;
 }
-
+*/
 
 
 // balle

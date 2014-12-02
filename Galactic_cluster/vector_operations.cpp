@@ -3,6 +3,7 @@
 
 using std::vector;
 
+// Multiplication function for a std::vector<vec3> multiplied with a scalar
 vector<vec3> operator*(vector<vec3> a, double k) {
     for (unsigned int i=0; i < a.size(); i++)
     {

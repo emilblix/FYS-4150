@@ -129,26 +129,26 @@ void Cluster::resetAllAcceleration()      //  Sets the force vector of all celes
     }
 }
 
-vec3 Cluster::forceAtPosition(int bodyNumber, vec3 pos)
-{
-    CelestialBody body1 = bodies[bodyNumber];
-    vec3 forceOnBody = vec3(0,0,0) ;
-    for(int i=0; i<numberOfBodies(); i++)
-    {
-        if(i != bodyNumber)
-        {
-            CelestialBody body2 = bodies[i];
-            vec3 deltaRVector = body2.position - pos;          // deltaRVector pointing from forceBody to body2
-            double dr = deltaRVector.length();                  // Distance between bodies
-            double forcefactor = body1.mass*body2.mass/(dr*dr*dr);
-            vec3 forceVector= deltaRVector*forcefactor;
-            forceOnBody = forceOnBody+forceVector;              // Force on forceBody points same direction as deltaRVector
-        }
+//vec3 Cluster::forceAtPosition(int bodyNumber, vec3 pos)
+//{
+//    CelestialBody body1 = bodies[bodyNumber];
+//    vec3 forceOnBody = vec3(0,0,0) ;
+//    for(int i=0; i<numberOfBodies(); i++)
+//    {
+//        if(i != bodyNumber)
+//        {
+//            CelestialBody body2 = bodies[i];
+//            vec3 deltaRVector = body2.position - pos;          // deltaRVector pointing from forceBody to body2
+//            double dr = deltaRVector.length();                  // Distance between bodies
+//            double forcefactor = body1.mass*body2.mass/(dr*dr*dr);
+//            vec3 forceVector= deltaRVector*forcefactor;
+//            forceOnBody = forceOnBody+forceVector;              // Force on forceBody points same direction as deltaRVector
+//        }
 
-        // Calculate the potential energy here
-    }
-    return forceOnBody;
-}
+//        // Calculate the potential energy here balle
+//    }
+//    return forceOnBody;
+//}
 
 void Cluster::dumpToFile(double time_elapsed) // Updates the file "pos.dat" with x and y positions of all bodies
 {
@@ -158,7 +158,7 @@ void Cluster::dumpToFile(double time_elapsed) // Updates the file "pos.dat" with
         CelestialBody body = bodies[i];
         outFile << std::setprecision(16)<<body.position.x() << " " << body.position.y() << " "<< body.position.z() << " ";
 
-//        outFile << body.position.x() << " " << body.position.y() << " " << body.velocity.x() << " " << body.velocity.y() << " "<< body.acceleration.x() << " " << body.acceleration.y() << " ";
+//  balle      outFile << body.position.x() << " " << body.position.y() << " " << body.velocity.x() << " " << body.velocity.y() << " "<< body.acceleration.x() << " " << body.acceleration.y() << " ";
     }
     outFile << "\n";
 }

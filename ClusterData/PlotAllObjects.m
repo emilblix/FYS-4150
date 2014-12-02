@@ -3,7 +3,7 @@ clear all
 A=importdata('pos.dat');
 time=A(:,1);
 totEn=A(:,2);
-nPlanets= (size(A,2)-2)/3;
+nPlanets= (size(A,2)-2)/3
 
 %%
 figure(1)
@@ -35,9 +35,9 @@ for i=2:1:size(dEn)
 end
  figure(3)
  clf(3)
- dEn(1:2)=[];
+ dEn(1:3)=[];
  t=time;
- t(1:2)=[];
+ t(1:3)=[];
  plot(t,dEn,'b');
  legend('totEn')
 title('Change in total energy of system')

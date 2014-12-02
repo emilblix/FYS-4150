@@ -10,7 +10,6 @@ SOURCES += main.cpp \
     verlet.cpp \
     cluster.cpp \
     rk4_adaptive.cpp \
-    verlet_adaptive.cpp \
     vector_operations.cpp
 
 HEADERS += \
@@ -20,6 +19,5 @@ HEADERS += \
     verlet.h \
     cluster.h \
     rk4_adaptive.h \
-    verlet_adaptive.h \
     vector_operations.h
 
