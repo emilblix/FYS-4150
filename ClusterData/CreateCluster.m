@@ -19,6 +19,7 @@ M(:,3)=y;
 M(:,4)=z;
 
 dlmwrite('cluster.txt',M,' ')
+% export(M,'file','cluster.txt','Delimiter',' ')
 
 %%
 % for i=1:1:N

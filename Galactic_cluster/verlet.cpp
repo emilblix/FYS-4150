@@ -74,7 +74,7 @@ void Verlet::velocityVerlet(Cluster &system, double dt, int n_steps)
     }
 
 }
-#include <vector_operations.h>
+
 void Verlet::integrateVerlet(Cluster &system, double dt, int n_steps)
 {
     // Setting initial vectors and variables

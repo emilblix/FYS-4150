@@ -17,7 +17,7 @@ CelestialBody::CelestialBody(vec3 pos, vec3 vel, double mass_)
     position = pos;
     velocity = vel;
     mass = mass_;
-    //resetForce();
+    resetForce();
 }
 void CelestialBody::resetForce()
 {

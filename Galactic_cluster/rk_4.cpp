@@ -29,11 +29,7 @@ void RK4::integrateCluster(Cluster &system, double dt, int n_steps)
         // Write to file for plotting
         system.dumpToFile(dt*step);
 
-        // Setting up A
-        /* vector A = [position_1, velocity_1,    (first body)
-                   position_2, velocity_2,    (second body)
-                   ... for all celestial bodies]
-        */
+        // Setting up vector A
         for(int i=0;i<n_bodies;i++)
         {
             CelestialBody body = system.bodies[i];
@@ -45,7 +41,6 @@ void RK4::integrateCluster(Cluster &system, double dt, int n_steps)
         // Runge-Kutta 4th order integration, start
         K1= dAdt(system,A);
 
-        // REMOVE BEFORE DELIVERY? balle
         // Returning acceleration values to CelestialBody objects to track acceleration
         for(int i=0;i<n_bodies;i++)
         {
@@ -75,8 +70,6 @@ void RK4::integrateCluster(Cluster &system, double dt, int n_steps)
             body->velocity = A[2*i+1];
         }
     }
-    // Print for last step
-//        system.dumpToFile(dt,n_steps);
 }
 
 vector<vec3> RK4::dAdt(Cluster &system, vector<vec3> A)
@@ -118,7 +111,7 @@ vector<vec3> RK4::dAdt(Cluster &system, vector<vec3> A)
             valueholder = dR*forcefactor;
             dAdt[2*j+1] = dAdt[2*j+1] - valueholder;
         }
-        // Multiplying with G = 4pi^2 at the end
+        // Multiplying with G = 4*pi^2 at the end
         dAdt[2*i+1] = dAdt[2*i+1]*G;
     }
     return dAdt;
