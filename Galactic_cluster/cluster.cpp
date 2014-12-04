@@ -23,8 +23,9 @@ void Cluster::addCelestialBody(CelestialBody newBody)
 
 void Cluster::calculateKineticAndPotentialEnergy() // Calculates kinetic and potential energy of system
 {
-    const double pi = 4*std::atan(1.0); // Pi with double-precision
-    const double G = 4*pi*pi;
+//    const double pi = 4*std::atan(1.0); // Pi with double-precision
+//    const double G = 4*pi*pi;
+    double G = gravitationalConstant;
     kineticEnergy = 0;
     potentialEnergy = 0;
     angularMomentum.setToZero();
@@ -74,8 +75,9 @@ void Cluster::calculateForces() // Calculates forces between bodies
 
 void Cluster::calculateAcceleration() // Calculates forces between bodies
 {
-    const double pi = 4*std::atan(1.0); // Pi with double-precision
-    const double G = 4*pi*pi;
+//    const double pi = 4*std::atan(1.0); // Pi with double-precision
+//    const double G = 4*pi*pi;
+    double G = gravitationalConstant;
     // Set forces to zero to avoid addition from previous run
     resetAllAcceleration();
     for(int i=0; i<numberOfBodies(); i++)

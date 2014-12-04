@@ -16,6 +16,7 @@ public:
     vector<CelestialBody> bodies;
     double kineticEnergy;
     double potentialEnergy;
+    double gravitationalConstant;
     vec3 angularMomentum;
     fstream outFile;
 

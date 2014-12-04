@@ -25,8 +25,8 @@ int main()
     // starting velocity(vx,vy,vz)) on each line, separated by spaces. Each line counts as one body.
     const char* filename = "../ClusterData/cluster.txt";
 
-    // Galactic cluster(0) or Solar system(1)?
-    int solsystOrCluster = 0;
+    // Solar system(0) or Galactic cluster(1)?
+    int solsystOrCluster = 1;
 
     // Set integration method. RK4 is 1, adaptive RK4 is 2, Velocity Verlet is 3, Verlet is 4
     int method = 2;
@@ -56,19 +56,21 @@ int main()
     cout << "Number of bodies = "<< astCluster.numberOfBodies()<<endl;
 
 
-    //const double pi = 4*std::atan(1.0); // Pi with double-precision
-    //const double G = 4*pi*pi;
+    const double pi = 4*std::atan(1.0); // Pi with double-precision
+//    double G;
 
     //----------------------------------------------------------------------------------
 
-    // FOR SOLAR SYSTEM ONLY:
+    // FOR SOLAR SYSTEM:
     /* Correction for center of mass, allows input file
        to have the Sun at (0,0,0) with zero velocity and
        removes need to adjust center of mass when adding/removing
        bodies */
 
-    if(solsystOrCluster==1)
+    if(solsystOrCluster==0)
     {
+        astCluster.gravitationalConstant = 4*pi*pi; // Value of G for solar system calculations
+
         double xCenter = 0;
         double totMass = 0;
         double totMomentum = 0;
@@ -87,6 +89,15 @@ int main()
         }
         totMomentum = totMomentum/astCluster.bodies.at(0).mass;
         astCluster.bodies.at(0).velocity.set(0,totMomentum,0);
+    }
+    else if(solsystOrCluster==1)
+    {
+        astCluster.gravitationalConstant = 3*pi*0.25;
+    }
+    else
+    {
+        cout << "Error: Invalid value of variable solsystOrCluster" << endl;
+        return(1);
     }
 
     //-----------------------------------------------------------------------------------
@@ -116,6 +127,11 @@ int main()
     {
         cout << "Chosen method is Basic Stormer-Verlet" << endl;
         Verlet::integrateVerlet(astCluster,timestep,n_steps);
+    }
+    else
+    {
+        cout << "Error: No chosen integration method" << endl;
+        return(1);
     }
     // End timing
     finish = clock();

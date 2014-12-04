@@ -74,8 +74,9 @@ void RK4::integrateCluster(Cluster &system, double dt, int n_steps)
 
 vector<vec3> RK4::dAdt(Cluster &system, vector<vec3> A)
 {
-    double pi = 4*std::atan(1.0);
-    double G = 4*pi*pi;
+//    double pi = 4*std::atan(1.0);
+//    double G = 4*pi*pi;
+    double G = system.gravitationalConstant;
     int n_bodies = system.numberOfBodies();
     vector<vec3> dAdt = vector<vec3>(2*n_bodies);
 
