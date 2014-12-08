@@ -58,7 +58,7 @@ void RK4::integrateCluster(Cluster &system, double dt, int n_steps)
 
         K4 = dAdt(system, A+K3        ) * dt;
 
-        A = A + ((K1 + K2*2 + K3*2 + K4)*(1/6.0));
+        A = A + ((K1 + K2*2.0 + K3*2.0 + K4)*(1/6.0));
 
         //-----------------------------------------------------------------------------
 
@@ -74,8 +74,6 @@ void RK4::integrateCluster(Cluster &system, double dt, int n_steps)
 
 vector<vec3> RK4::dAdt(Cluster &system, vector<vec3> A)
 {
-//    double pi = 4*std::atan(1.0);
-//    double G = 4*pi*pi;
     double G = system.gravitationalConstant;
     int n_bodies = system.numberOfBodies();
     vector<vec3> dAdt = vector<vec3>(2*n_bodies);
@@ -112,7 +110,7 @@ vector<vec3> RK4::dAdt(Cluster &system, vector<vec3> A)
             valueholder = dR*forcefactor;
             dAdt[2*j+1] = dAdt[2*j+1] - valueholder;
         }
-        // Multiplying with G = 4*pi^2 at the end
+        // Multiplying with G at the end
         dAdt[2*i+1] = dAdt[2*i+1]*G;
     }
     return dAdt;

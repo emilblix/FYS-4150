@@ -18,10 +18,10 @@ int main()
     int method = 1;
 
     // SET SUN MOVEMENT ABILITY: 0 for moving sun, 1 for stationary sun
-    int stationarySun = 0;
+    int stationarySun = 1;
 
     // Set endpoint of time calculations and timestep (dt)
-    float number_of_years = 400;
+    float number_of_years = 20;
     double timestep = 1e-2;
 
     // Setting initial solar system and celestial bodies
@@ -30,27 +30,27 @@ int main()
 
     // CelestialBody name(x,     y,vx, vy,               mass,    radius,  name);
     CelestialBody sun    (0,     0, 0, 0,                1,       4.64e-3, "Sun");
-    CelestialBody mercury(0.39,  0, 0, 2*pi/sqrt(0.39),  1.65e-7, 1.63e-5, "Mercury");
-    CelestialBody venus  (0.72,  0, 0, 2*pi/sqrt(0.72),  2.45e-6, 4.03e-5, "Venus");
+//    CelestialBody mercury(0.39,  0, 0, 2*pi/sqrt(0.39),  1.65e-7, 1.63e-5, "Mercury");
+//    CelestialBody venus  (0.72,  0, 0, 2*pi/sqrt(0.72),  2.45e-6, 4.03e-5, "Venus");
     CelestialBody earth  (1,     0, 0, 2*pi,             3e-6,    4.25e-5, "Earth");
-    CelestialBody mars   (1.52,  0, 0, 2*pi/sqrt(1.52),  3.2e-7,  2.26e-5, "Mars");
-    CelestialBody jupiter(5.2,   0, 0, 2*pi/sqrt(5.2),   9.5e-4,  4.66e-4, "Jupiter");
-    CelestialBody saturn (9.54,  0, 0, 2*pi/sqrt(9.54),  2.85e-4, 3.88e-4, "Saturn");
-    CelestialBody uranus (19.19, 0, 0, 2*pi/sqrt(19.19), 4.35e-5, 1.69e-4, "Uranus");
-    CelestialBody neptune(30.07, 0, 0, 2*pi/sqrt(30.07), 5.1e-5,  1.64e-4, "Neptune");
-    CelestialBody pluto  (39.48, 0, 0, 2*pi/sqrt(39.48), 6.55e-9, 7.67e-6, "Pluto");
+//    CelestialBody mars   (1.52,  0, 0, 2*pi/sqrt(1.52),  3.2e-7,  2.26e-5, "Mars");
+//    CelestialBody jupiter(5.2,   0, 0, 2*pi/sqrt(5.2),   9.5e-4,  4.66e-4, "Jupiter");
+//    CelestialBody saturn (9.54,  0, 0, 2*pi/sqrt(9.54),  2.85e-4, 3.88e-4, "Saturn");
+//    CelestialBody uranus (19.19, 0, 0, 2*pi/sqrt(19.19), 4.35e-5, 1.69e-4, "Uranus");
+//    CelestialBody neptune(30.07, 0, 0, 2*pi/sqrt(30.07), 5.1e-5,  1.64e-4, "Neptune");
+//    CelestialBody pluto  (39.48, 0, 0, 2*pi/sqrt(39.48), 6.55e-9, 7.67e-6, "Pluto");
 
     SolarSystem solSyst;
     solSyst.addCelestialBody(sun);
-    solSyst.addCelestialBody(mercury);
-    solSyst.addCelestialBody(venus);
+//    solSyst.addCelestialBody(mercury);
+//    solSyst.addCelestialBody(venus);
     solSyst.addCelestialBody(earth);
-    solSyst.addCelestialBody(mars);
-    solSyst.addCelestialBody(jupiter);
-    solSyst.addCelestialBody(saturn);
-    solSyst.addCelestialBody(uranus);
-    solSyst.addCelestialBody(neptune);
-    solSyst.addCelestialBody(pluto);
+//    solSyst.addCelestialBody(mars);
+//    solSyst.addCelestialBody(jupiter);
+//    solSyst.addCelestialBody(saturn);
+//    solSyst.addCelestialBody(uranus);
+//    solSyst.addCelestialBody(neptune);
+//    solSyst.addCelestialBody(pluto);
 
 
 

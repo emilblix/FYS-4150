@@ -22,28 +22,7 @@ void RK4_adaptive::RKF_45(Cluster &system, double dt_initial, double total_time)
     vector<vec3> K5 = vector<vec3>(2*n_bodies);
     vector<vec3> K6 = vector<vec3>(2*n_bodies);
 
-    /*
-    balle
-    vector<int> test =vector<int>(5);
-    for(int i=0;i<5;i++)
-    {
-        test[i]=i+6;
-    }
-    for (int i=0;i<test.size();i++)
-    {
-    std::cout << "test1    : "<<test[i]<<std::endl;
-    }
-    std::cout << "test1size: "<<test.size() << std::endl;
-    test.clear();
-    test.push_back(4);
-    test.push_back(8);
-    for (int i=0;i<test.size();i++)
-    {
-    std::cout << "test2    : "<<test[i] << std::endl;
-    }
-    std::cout << "test2size: "<<test.size() << std::endl;
-    */
-
+    // Setting up A
     for(int i=0;i<n_bodies;i++)
     {
         CelestialBody body = system.bodies[i];
@@ -53,7 +32,13 @@ void RK4_adaptive::RKF_45(Cluster &system, double dt_initial, double total_time)
 
     double dt = dt_initial;
     double time_elapsed = 0;
-    double tolerance = 1e-10;
+
+    // Maximum allowed relative deviation of RK4 approximation from RK5 approximation
+    double tolerance = 1e-6;
+
+    // Minimum and maximum allowed value of timestep
+    double mindt = 1e-30;
+    double maxdt = 1e-3;
 
     // Write first step to file for plotting
     system.dumpToFile(time_elapsed);
@@ -80,7 +65,6 @@ void RK4_adaptive::RKF_45(Cluster &system, double dt_initial, double total_time)
         // Calculating K vectors, K1 is equal for RK4 and RKF45
         K1= dAdt(system,A);
 
-        // REMOVE BEFORE DELIVERY? balle
         // Returning acceleration values to CelestialBody objects to track acceleration
         for(int i=0;i<n_bodies;i++)
         {
@@ -89,7 +73,6 @@ void RK4_adaptive::RKF_45(Cluster &system, double dt_initial, double total_time)
         }
 
         // Calculating K vectors, continued
-        // K1 = dt*dAdt(system,A)
         K1 = K1*dt;
 
         //---------------------------------------------------------------------------------------------
@@ -123,35 +106,46 @@ void RK4_adaptive::RKF_45(Cluster &system, double dt_initial, double total_time)
 
         rk5approx = A + K1*(16/135.0) + K3*(6656/12825.0) + K4*(28561/56430.0) + K5*(-9/50.0) + K6*(2/55.0);
 
-        // RK4 approximation
-        // Combining A + K1*25/216     + K3*1408/2565     + K4*2197/4101     - K5*1/5 into rk4approx
-//         rk4approx =  A + K1*(25/216.0) + K3*(1408/2565.0) + K4*(2197/4101.0) + K5*(-1/5.0);
-
-
 
         //-------------------------------------------------------------------------------------------------------
         // Comparing results of calculations
         double diffMethods = 0;
         double rk5absvalue = 0;
-        for (int i=0;i<2*n_bodies;i++)
+        for (int i=0;i<2*n_bodies;i+=2)
         {
             vec3 diffVector = rk5approx[i]-rk4approx[i];
             diffMethods += fabs(diffVector.x()) + fabs(diffVector.y()) + fabs(diffVector.z());
             rk5absvalue += fabs(rk5approx[i].x()) + fabs(rk5approx[i].y()) + fabs(rk5approx[i].z());
         }
-        diffMethods = diffMethods/(rk5absvalue*6*n_bodies);
+        diffMethods = diffMethods/rk5absvalue;
 
-        if(diffMethods > tolerance*10000)
+        if(diffMethods > tolerance && dt>mindt)
         {
             double s = pow(tolerance/(2*diffMethods),1/4.0);
-            dt = dt*s;
-            printf("Time step shrunk by a factor %4f to %4f \n",s,dt);
+            if(dt*s>mindt)
+            {
+                dt = dt*s;
+                printf("Time step shrunk by a factor %f to %e \n",s,dt);
+            }
+            else
+            {
+                dt = dt*0.5;
+                printf("Time step halved to %e \n",dt);
+            }
         }
-        else if(diffMethods < tolerance*0.0001)
+        else if(diffMethods < tolerance*0.0001 && dt<maxdt)
         {
             double s = pow(tolerance/(2*diffMethods),1/4.0);
-            dt = dt*s;
-            printf("Time step increased by a factor %4f to %4f \n",s,dt);
+            if(dt*s<=maxdt)
+            {
+                dt = dt*s;
+                printf("Time step increased by a factor %f to %e \n",s,dt);
+            }
+            else
+            {
+                dt = dt*2.0;
+                printf("Time step doubled to %e \n",dt);
+            }
         }
         else
         {
@@ -166,28 +160,11 @@ void RK4_adaptive::RKF_45(Cluster &system, double dt_initial, double total_time)
             // Write to file for plotting
             system.dumpToFile(time_elapsed);
         }
-        // The system needs to take a few steps at the start for the total energy to stabilize
-//        else
-//        {
-////            A = A + rk5approx;
-//            // Returning new position and velocity values to CelestialBody objects
-//            for(int i=0;i<n_bodies;i++)
-//            {
-//                CelestialBody *body = &system.bodies[i];
-//                body->position = rk5approx[2*i];
-//                body->velocity = rk5approx[2*i+1];
-//            }
-//            time_elapsed += dt_initial;
-//            // Write to file for plotting
-//            system.dumpToFile(time_elapsed);
-//        }
     }
 }
 
 vector<vec3> RK4_adaptive::dAdt(Cluster &system, vector<vec3> A)
 {
-//    double pi = 4*std::atan(1.0);
-//    double G = 4*pi*pi;
     double G = system.gravitationalConstant;
     int n_bodies = system.numberOfBodies();
     vector<vec3> dAdt = vector<vec3>(2*n_bodies);
@@ -212,7 +189,7 @@ vector<vec3> RK4_adaptive::dAdt(Cluster &system, vector<vec3> A)
             vec3 dR = A[2*j] - A[2*i];          // dR pointing from body i to body j
 
             double dr = dR.length();
-            double dr_cubed = dr*dr*dr;
+            double dr_cubed = dr*dr*dr+1e-6;
 
             // For body i: a = mass_j/r^3*r
             double forcefactor = mass_j/dr_cubed;
@@ -224,7 +201,7 @@ vector<vec3> RK4_adaptive::dAdt(Cluster &system, vector<vec3> A)
             valueholder = dR*forcefactor;
             dAdt[2*j+1] = dAdt[2*j+1] - valueholder;
         }
-        // Multiplying with G = 4pi^2 at the end
+        // Multiplying with G at the end
         dAdt[2*i+1] = dAdt[2*i+1]*G;
     }
     return dAdt;

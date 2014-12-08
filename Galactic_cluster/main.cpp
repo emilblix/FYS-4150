@@ -11,11 +11,6 @@
 
 using namespace std;
 
-// WARNING!!!!!!!!
-// BEFORE DELIVERY:
-// SEARCH ENTIRE PROJECT FOR balle
-// REMOVE AS NEEDED
-
 
 int main()
 {
@@ -23,17 +18,17 @@ int main()
 
     // Set name of file to be read. File must contain 7 stats (mass, starting position (x,y,z),
     // starting velocity(vx,vy,vz)) on each line, separated by spaces. Each line counts as one body.
-    const char* filename = "../ClusterData/cluster.txt";
+    const char* filename = "../ClusterData/Input/cluster100.txt";
 
     // Solar system(0) or Galactic cluster(1)?
     int solsystOrCluster = 1;
 
-    // Set integration method. RK4 is 1, adaptive RK4 is 2, Velocity Verlet is 3, Verlet is 4
+    // Set integration method. RK4 is 1, adaptive RK4 is 2, Velocity Verlet is 3
     int method = 2;
 
     // Set endpoint of time calculations and timestep (dt)
-    double total_time = 2;
-    double timestep = 1e-1;
+    double total_time = 10;
+    double timestep = 1e-5;
 
     //-----------------------------------------------------------------------------------------------
     // Setting initial solar system and celestial bodies
@@ -52,12 +47,11 @@ int main()
         cout << "Error during reading of file. Check filename." << endl;
         return(1);
     }
-    cout << "Reading file " << filename << endl;
+    cout << "Reading file: " << filename << endl;
     cout << "Number of bodies = "<< astCluster.numberOfBodies()<<endl;
 
 
     const double pi = 4*std::atan(1.0); // Pi with double-precision
-//    double G;
 
     //----------------------------------------------------------------------------------
 
@@ -92,7 +86,7 @@ int main()
     }
     else if(solsystOrCluster==1)
     {
-        astCluster.gravitationalConstant = 3*pi*0.25;
+        astCluster.gravitationalConstant = 100*pi*pi/(astCluster.numberOfBodies());
     }
     else
     {
@@ -122,11 +116,6 @@ int main()
     {
         cout << "Chosen method is Velocity Verlet" << endl;
         Verlet::velocityVerlet(astCluster,timestep,n_steps);
-    }
-    else if(method == 4)  // Basic Störmer-Verlet
-    {
-        cout << "Chosen method is Basic Stormer-Verlet" << endl;
-        Verlet::integrateVerlet(astCluster,timestep,n_steps);
     }
     else
     {
